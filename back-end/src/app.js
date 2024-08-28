@@ -3,9 +3,11 @@ const { google } = require('googleapis');
 const { authorize, getOAuth2Client, getAndSaveToken } = require('./config/authorize');
 const app = express();
 app.use(express.json());
+const PORT = process.env.PORT || 3000;
 
-app.listen(3000, () => {
-  console.log('Server is running on http://localhost:3000');
+
+app.listen(PORT, () => {
+  console.log(`Server is running on http://localhost:${PORT}`);
 });
 
 const moment = require('moment');
@@ -27,7 +29,7 @@ app.get('/oauth2callback', async (req, res) => {
 app.post('/api/start-game', async (req, res) => {
   try {
     const auth = await authorize();
-    const spreadsheetId = '10ioKPL3Y4jofGZCCMJoFpFsl4tk5XBX-LuFN3XZSVKs'; // Replace with your actual spreadsheet ID
+    const spreadsheetId = '10ioKPL3Y4jofGZCCMJoFpFsl4tk5XBX-LuFN3XZSVKs';
 
     const today = moment().format('DD/MM/YYYY');
     const sheetName = await createSheet(auth, spreadsheetId, today);
