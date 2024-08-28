@@ -1,0 +1,8 @@
+{ 
+  "dependencies": {
+    "express": "^4.19.2",
+    "googleapis": "^142.0.0",
+    "moment": "^2.30.1",
+    "open": "^10.1.0"
+  }
+}

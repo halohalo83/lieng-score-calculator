@@ -1,0 +1,17 @@
+# Node.js dependencies
+node_modules/
+
+# Logs
+logs/
+*.log
+
+# Environment variables
+.env
+
+# Token and credentials
+token.json
+credentials.json
+
+# OS-specific files
+.DS_Store
+Thumbs.db
