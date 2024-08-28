@@ -1,0 +1,8 @@
+<div class="container">
+  <h1>Enter Scores</h1>
+  <div *ngFor="let player of players; let i = index">
+    <nz-input-number type="tel" [(ngModel)]="player.score" nzPlaceHolder="{{ player.name }}"></nz-input-number>
+  </div>
+  <button nz-button nzType="primary" (click)="nextRound()">Next Round</button>
+  <button nz-button nzDanger (click)="finishGame()">Finish Game</button>
+</div>

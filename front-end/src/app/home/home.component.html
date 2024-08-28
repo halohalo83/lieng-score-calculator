@@ -1,0 +1,8 @@
+<div class="container">
+  <h1>Select Number of Players</h1>
+  <nz-input-number type="number" inputmode="numeric" [(ngModel)]="numberOfPlayers" nzPlaceHolder="Number of Players"></nz-input-number>
+
+  <nz-input-number type="number" inputmode="numeric" [(ngModel)]="initialScore" nzPlaceHolder="Initial Score"></nz-input-number>
+
+  <button nz-button nzType="primary" (click)="startGame()">Start Game</button>
+</div>

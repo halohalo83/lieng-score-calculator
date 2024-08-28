@@ -6,7 +6,7 @@ const TOKEN_PATH = path.resolve(__dirname, 'token.json');
 
 async function getOAuth2Client() {
   const credentials = JSON.parse(fs.readFileSync(path.resolve(__dirname, 'credentials.json')));
-  const { client_secret, client_id, redirect_uris } = credentials.installed;
+  const { client_secret, client_id, redirect_uris } = credentials.web;
   if (!client_id || !client_secret || !redirect_uris) {
     throw new Error("Missing required credentials fields: 'client_id', 'client_secret', 'redirect_uris'");
   }
@@ -27,12 +27,6 @@ async function authorize() {
       scope: ['https://www.googleapis.com/auth/spreadsheets'],
     });
     console.log('Authorize this app by visiting this url:', authUrl);
-    
-      // // After visiting the URL, paste the code obtained into the command line
-      // const { tokens } = await oAuth2Client.getToken(code);
-      // oAuth2Client.setCredentials(tokens);
-      // fs.writeFileSync(TOKEN_PATH, JSON.stringify(tokens));
-      // console.log('Token stored to', TOKEN_PATH);
 
     return oAuth2Client;
   }

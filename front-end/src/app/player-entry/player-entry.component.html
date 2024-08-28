@@ -1,0 +1,9 @@
+<div class="container">
+  <h1>Enter Player Names</h1>
+  <div *ngFor="let player of players; let i = index">
+    <nz-input-group [nzPrefix]="i + 1 + '.'">
+      <input nz-input placeholder="Player Name" [(ngModel)]="players[i].name">
+    </nz-input-group>
+  </div>
+  <button nz-button nzType="primary" (click)="saveNames()">Save and Start Game</button>
+</div>
