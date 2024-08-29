@@ -1,8 +1,57 @@
 <div class="container">
-  <h1>Select Number of Players</h1>
-  <nz-input-number type="number" inputmode="numeric" [(ngModel)]="numberOfPlayers" nzPlaceHolder="Number of Players"></nz-input-number>
+  <img
+    src="https://media1.tenor.com/m/CkrY3ESk_ecAAAAC/tuannguyen12-travis.gif"
+    class="mb-3"
+  />
 
-  <nz-input-number type="number" inputmode="numeric" [(ngModel)]="initialScore" nzPlaceHolder="Initial Score"></nz-input-number>
+  <h2 class="text-center">Ăn Gà v1.0</h2>
 
-  <button nz-button nzType="primary" (click)="startGame()">Start Game</button>
+  <form [formGroup]="form" (ngSubmit)="startGame()">
+    <nz-row [nzGutter]="[8, 8]">
+      <nz-col nzSpan="12">
+        <nz-input-number-group nzAddOnBefore="Nhập số người">
+          <nz-input-number
+            class="form-control"
+            [nzMin]="0"
+            type="number"
+            inputmode="numeric"
+            formControlName="numberOfPlayers"
+            nzPlaceHolder="Nhập số người"
+            required
+          ></nz-input-number>
+        </nz-input-number-group>
+      </nz-col>
+      <nz-col nzSpan="12">
+        <nz-input-number-group [nzAddOnBefore]="prefixChicken">
+          <nz-input-number
+            class="form-control"
+            [nzMin]="0"
+            type="number"
+            inputmode="numeric"
+            formControlName="initialScore"
+            nzPlaceHolder="Nhập gà"
+            required
+          ></nz-input-number>
+        </nz-input-number-group>
+        <ng-template #prefixChicken>
+          <img
+            src="https://cdn.icon-icons.com/icons2/1808/PNG/96/animal-chicken_115218.png"
+            width="25"
+          />
+        </ng-template>
+      </nz-col>
+      <nz-col nzSpan="24">
+        <button
+          type="submit"
+          class="w-100"
+          nz-button
+          nzType="primary"
+          (click)="startGame()"
+          [disabled]="form.invalid || f['numberOfPlayers'].value === 0"
+        >
+          Bắt đầu
+        </button>
+      </nz-col>
+    </nz-row>
+  </form>
 </div>

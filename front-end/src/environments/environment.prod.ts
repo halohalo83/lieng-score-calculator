@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  apiUrl: ''
+  apiUrl: 'lieng-score-calculator-server.vercel.app/api'
 };
