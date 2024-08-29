@@ -43,12 +43,25 @@
         </ng-template>
       </nz-col>
       <nz-col nzSpan="12">
-        <nz-select class="form-control" class="w-100" formControlName="selectedSheetId">
-          <nz-option *ngFor="let option of sheets" [nzValue]="option.sheetId" [nzLabel]="option.title"></nz-option>
+        <nz-select
+          class="form-control"
+          class="w-100"
+          formControlName="selectedSheetId"
+        >
+          <nz-option
+            *ngFor="let option of sheets"
+            [nzValue]="option.sheetId"
+            [nzLabel]="option.title"
+          ></nz-option>
         </nz-select>
       </nz-col>
-      <nz-col nzSpan="12">
-        <button nzDanger class="w-100" nz-button (click)="createSheet()">Tạo sheet</button>
+      <nz-col nzSpan="3">
+        <button nz-button class="w-100" nzDanger (click)="deleteSheet()"><span nzDanger nz-icon nzType="delete"></span></button>
+         </nz-col>
+      <nz-col nzSpan="9">
+        <button class="w-100" nz-button (click)="createSheet()">
+          Tạo Sheet
+        </button>
       </nz-col>
       <nz-col nzSpan="24">
         <button

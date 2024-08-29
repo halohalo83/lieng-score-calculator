@@ -15,6 +15,7 @@ import { ApiService } from '../../api.service';
 import { GameService } from '../../game-service.service';
 import { CommonModule, NgFor, NgIf } from '@angular/common';
 import { SheetModel } from '../../models/sheet.model';
+import { NzIconModule } from 'ng-zorro-antd/icon';
 FormsModule;
 @Component({
   selector: 'app-home',
@@ -31,6 +32,7 @@ FormsModule;
     NgFor,
     NzSelectComponent,
     CommonModule,
+    NzIconModule
   ],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',
@@ -92,5 +94,9 @@ export class HomeComponent {
     } catch (error) {
       console.error('Error getting all sheets:', error);
     }
+  }
+
+  deleteSheet() {
+
   }
 }
