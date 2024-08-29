@@ -72,6 +72,41 @@ app.post("/api/create-sheet", async (req, res) => {
   }
 });
 
+// Delete sheet route
+app.delete("/api/delete-sheet/:sheetId", async (req, res) => {
+  const { sheetId } = req.params;
+  try {
+    const auth = await authorize();
+    await deleteSheet(auth, spreadsheetId, Number(sheetId));
+
+    res.json({ success: true });
+  } catch (error) {
+    console.error("Error deleting sheet:", error);
+    res.status(500).json({ success: false, error: "Failed to delete sheet" });
+  }
+});
+
+// Check sheet have data
+app.get("/api/check-data/:sheetId", async (req, res) => {
+  const { sheetId } = req.params;
+  try {
+    const auth = await authorize();
+    const sheets = google.sheets({ version: "v4", auth });
+    console.log(sheets, 'sheetData');
+
+    const sheetData = await sheets.spreadsheets.values.get({
+      spreadsheetId,
+      range: `${sheetId}!A1:A1`,
+    });
+
+    res.json({ success: true, hasData: sheetData.data.values.length > 0 });
+  } catch (error) {
+    console.error("Error checking sheet:", error);
+    res.status(500).json({ success: false, error: "Failed to check sheet" });
+  }
+});
+
+
 async function createSheet(auth, spreadsheetId, today) {
   const sheets = google.sheets({ version: "v4", auth });
 
@@ -102,6 +137,23 @@ async function createSheet(auth, spreadsheetId, today) {
   });
 
   return sheetName;
+}
+
+async function deleteSheet(auth, spreadsheetId, sheetId) {
+  const sheets = google.sheets({ version: "v4", auth });
+
+  await sheets.spreadsheets.batchUpdate({
+    spreadsheetId,
+    resource: {
+      requests: [
+        {
+          deleteSheet: {
+            sheetId,
+          },
+        },
+      ],
+    },
+  });
 }
 
 async function getAllSheets(auth, spreadsheetId) {

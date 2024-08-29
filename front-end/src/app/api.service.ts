@@ -56,4 +56,30 @@ export class ApiService {
       this.spinner.hide();
     }
   }
+
+  public async deleteSheet(sheetId: number) {
+    this.spinner.show();
+    try {
+      const response = await axios.delete(`${this.apiUrl}/delete-sheet/${sheetId}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error deleting sheet:', error);
+      throw error;
+    } finally {
+      this.spinner.hide();
+    }
+  }
+
+  public async checkSheet(sheetId: number) {
+    this.spinner.show();
+    try {
+      const response = await axios.get(`${this.apiUrl}/check-data/${sheetId}`);
+      return response.data.hasData;
+    } catch (error) {
+      console.error('Error checking sheet:', error);
+      throw error;
+    } finally {
+      this.spinner.hide();
+    }
+  }
 }

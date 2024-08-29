@@ -17,6 +17,7 @@ import { CommonModule, NgFor, NgIf } from '@angular/common';
 import { SheetModel } from '../../models/sheet.model';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NgxSpinnerModule } from 'ngx-spinner';
+import { NzModalModule, NzModalService } from 'ng-zorro-antd/modal';
 FormsModule;
 @Component({
   selector: 'app-home',
@@ -35,6 +36,7 @@ FormsModule;
     CommonModule,
     NzIconModule,
     NgxSpinnerModule,
+    NzModalModule
   ],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',
@@ -46,7 +48,8 @@ export class HomeComponent {
     private router: Router,
     private gameService: GameService,
     private apiService: ApiService,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private modal: NzModalService
   ) {}
 
   get f() {
@@ -107,5 +110,43 @@ export class HomeComponent {
     }
   }
 
-  deleteSheet() {}
+  deleteSheet() {
+    const sheetId = this.form.get('selectedSheetId')?.value;
+    if (!sheetId) {
+      return;
+    }
+
+    this.apiService.deleteSheet(sheetId).then((response) => {
+      if (response.success) {
+        this.getAllSheets();
+      }
+    });
+  }
+
+  confirmDelete() {
+    const sheetId = this.form.get('selectedSheetId')?.value;
+    if (!sheetId) {
+      return;
+    }
+
+    this.apiService.checkSheet(sheetId).then((response) => {
+      if (response.success && response.hasData) {
+        this.modal.confirm({
+          nzTitle: 'Có data, có chắc chắn muốn xóa không?',
+          nzOkText: 'Xóa mẹ đi',
+          nzOkType: 'primary',
+          nzOkDanger: true,
+          nzCancelText: 'Đéo',
+          nzOnOk: () => {
+            this.deleteSheet();
+          },
+          nzOnCancel: () => {
+            return;
+          },
+         });
+      } else {
+        this.deleteSheet();
+      }
+    });
+  }
 }
