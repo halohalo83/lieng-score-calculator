@@ -1,8 +1,8 @@
 import { Routes } from '@angular/router';
-import { HomeComponent } from './home/home.component';
-import { PlayerEntryComponent } from './player-entry/player-entry.component';
-import { ScoreEntryComponent } from './score-entry/score-entry.component';
-import { ResultComponent } from './result/result.component';
+import { HomeComponent } from './components/home/home.component';
+import { PlayerEntryComponent } from './components/player-entry/player-entry.component';
+import { ScoreEntryComponent } from './components/score-entry/score-entry.component';
+import { ResultComponent } from './components/result/result.component';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent },

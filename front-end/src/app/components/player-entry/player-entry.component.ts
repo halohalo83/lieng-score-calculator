@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NzButtonComponent } from 'ng-zorro-antd/button';
 import { NzInputGroupComponent, NzInputModule } from 'ng-zorro-antd/input';
-import { GameService } from '../game-service.service';
+import { GameService } from '../../game-service.service';
 import { NzGridModule } from 'ng-zorro-antd/grid';
 
 @Component({

@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { NzButtonComponent } from 'ng-zorro-antd/button';
 import { NzInputNumberComponent } from 'ng-zorro-antd/input-number';
-import { GameService } from '../game-service.service';
+import { GameService } from '../../game-service.service';
 
 @Component({
   selector: 'app-score-entry',

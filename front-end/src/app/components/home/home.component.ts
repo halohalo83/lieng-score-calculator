@@ -9,13 +9,12 @@ import {
 import { Router } from '@angular/router';
 import { NzButtonComponent } from 'ng-zorro-antd/button';
 import { NzGridModule } from 'ng-zorro-antd/grid';
-import {
-  NzInputNumberModule
-} from 'ng-zorro-antd/input-number';
+import { NzInputNumberModule } from 'ng-zorro-antd/input-number';
 import { NzOptionComponent, NzSelectComponent } from 'ng-zorro-antd/select';
-import { ApiService } from '../api.service';
-import { GameService } from '../game-service.service';
-import { CommonModule, NgIf } from '@angular/common';
+import { ApiService } from '../../api.service';
+import { GameService } from '../../game-service.service';
+import { CommonModule, NgFor, NgIf } from '@angular/common';
+import { SheetModel } from '../../models/sheet.model';
 FormsModule;
 @Component({
   selector: 'app-home',
@@ -29,13 +28,16 @@ FormsModule;
     NzGridModule,
     ReactiveFormsModule,
     NgIf,
-    CommonModule
+    NgFor,
+    NzSelectComponent,
+    CommonModule,
   ],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',
 })
 export class HomeComponent {
   form!: FormGroup;
+  sheets: SheetModel[] = [];
   constructor(
     private router: Router,
     private gameService: GameService,
@@ -48,23 +50,41 @@ export class HomeComponent {
   }
 
   ngOnInit(): void {
+    this.getAllSheets();
     this.form = this.fb.group({
       numberOfPlayers: [6, Validators.required],
       initialScore: [2, Validators.required],
+      selectedSheetId: [null, Validators.required]
     });
   }
 
   startGame() {
     this.gameService.setInitialScore(this.form.get('initialScore')?.value || 0);
 
-    this.apiService.startGame().subscribe((response) => {
-      console.log(response);
-    });
+    this.gameService.setSelectedSheet(this.form.get('selectedSheetId')?.value);
+
     this.router.navigate(['/player-entry'], {
       queryParams: {
         players: this.form.get('numberOfPlayers')?.value,
         initialScore: this.form.get('initialScore')?.value,
       },
+    });
+  }
+
+  createSheet() {
+    this.apiService.createSheet().subscribe((response: any) => {
+      if (response.success) {
+        this.getAllSheets();
+      }
+    });
+  }
+
+  getAllSheets() {
+    this.apiService.getAllSheets().subscribe((response: any) => {
+      if (response.success && response.result.length > 0) {
+        this.sheets = response.result;
+        this.form.get('selectedSheetId')?.setValue(this.sheets[this.sheets.length - 1].sheetId);
+      }
     });
   }
 }

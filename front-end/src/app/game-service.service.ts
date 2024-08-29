@@ -1,9 +1,11 @@
 import { Injectable } from '@angular/core';
+import { SheetModel } from './models/sheet.model';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class GameService {
+  private selectedSheetId: number | null = null;
   private initialScore: number;
   private players: { name: string }[] = [];
   constructor() {
@@ -24,5 +26,9 @@ export class GameService {
 
   getPlayers(): { name: string }[] {
     return this.players;
+  }
+
+  setSelectedSheet(sheetId: number): void {
+    this.selectedSheetId = sheetId;
   }
 }

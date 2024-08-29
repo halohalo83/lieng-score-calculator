@@ -6,7 +6,7 @@
 
   <h2 class="text-center">Ăn Gà v1.0</h2>
 
-  <form [formGroup]="form" (ngSubmit)="startGame()">
+  <form [formGroup]="form">
     <nz-row [nzGutter]="[8, 8]">
       <nz-col nzSpan="12">
         <nz-input-number-group nzAddOnBefore="Nhập số người">
@@ -41,6 +41,14 @@
             width="25"
           />
         </ng-template>
+      </nz-col>
+      <nz-col nzSpan="12">
+        <nz-select class="form-control" class="w-100" formControlName="selectedSheetId">
+          <nz-option *ngFor="let option of sheets" [nzValue]="option.sheetId" [nzLabel]="option.title"></nz-option>
+        </nz-select>
+      </nz-col>
+      <nz-col nzSpan="12">
+        <button nzDanger class="w-100" nz-button (click)="createSheet()">Tạo sheet</button>
       </nz-col>
       <nz-col nzSpan="24">
         <button

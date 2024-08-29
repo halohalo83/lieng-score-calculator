@@ -1,1 +1,1 @@
-::ng-deep .ant-input-number-input,::ng-deep .ant-input{height:40px !important}::ng-deep .ant-input{padding-bottom:2px !important}
+::ng-deep .ant-input-number-input,::ng-deep .ant-input,::ng-deep .ant-btn,::ng-deep .ant-select-selector{height:40px !important}::ng-deep .ant-input{padding-bottom:2px !important}::ng-deep .ant-select-single .ant-select-selector .ant-select-selection-item{line-height:40px !important}
