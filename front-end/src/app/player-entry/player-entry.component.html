@@ -1,9 +1,39 @@
 <div class="container">
-  <h1>Enter Player Names</h1>
+  <h1 class="text-center">Nhập tên</h1>
   <div *ngFor="let player of players; let i = index">
-    <nz-input-group [nzPrefix]="i + 1 + '.'">
-      <input nz-input placeholder="Player Name" [(ngModel)]="players[i].name">
+    <nz-input-group [nzPrefix]="i + 1 + '.'" class="mb-3">
+      <input
+        nz-input
+        placeholder="Nhập tên"
+        [(ngModel)]="players[i].name"
+        [tabIndex]="i"
+        #playerInput
+        (keydown.enter)="focusNextInput(i)"
+      />
     </nz-input-group>
   </div>
-  <button nz-button nzType="primary" (click)="saveNames()">Save and Start Game</button>
+  <nz-row [nzGutter]="16">
+    <nz-col nzSpan="12">
+      <button
+        class="w-100"
+        [nzSize]="'large'"
+        nz-button
+        nzType="default"
+        (click)="back()"
+      >
+        Quay lại
+      </button>
+    </nz-col>
+    <nz-col nzSpan="12">
+      <button
+        class="w-100"
+        [nzSize]="'large'"
+        nz-button
+        nzType="primary"
+        (click)="saveNames()"
+      >
+        Tiếp tục
+      </button>
+    </nz-col>
+  </nz-row>
 </div>

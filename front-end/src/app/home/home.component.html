@@ -11,6 +11,7 @@
       <nz-col nzSpan="12">
         <nz-input-number-group nzAddOnBefore="Nhập số người">
           <nz-input-number
+            [nzSize]="'large'"
             class="form-control"
             [nzMin]="0"
             type="number"
@@ -24,6 +25,7 @@
       <nz-col nzSpan="12">
         <nz-input-number-group [nzAddOnBefore]="prefixChicken">
           <nz-input-number
+            [nzSize]="'large'"
             class="form-control"
             [nzMin]="0"
             type="number"
@@ -48,6 +50,7 @@
           nzType="primary"
           (click)="startGame()"
           [disabled]="form.invalid || f['numberOfPlayers'].value === 0"
+          [nzSize]="'large'"
         >
           Bắt đầu
         </button>

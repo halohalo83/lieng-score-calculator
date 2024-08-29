@@ -49,8 +49,8 @@ export class HomeComponent {
 
   ngOnInit(): void {
     this.form = this.fb.group({
-      numberOfPlayers: ['', Validators.required],
-      initialScore: ['', Validators.required],
+      numberOfPlayers: [6, Validators.required],
+      initialScore: [2, Validators.required],
     });
   }
 
