@@ -8,14 +8,14 @@ import { SheetModel } from './models/sheet.model';
   providedIn: 'root',
 })
 export class ApiService {
-  private apiUrl: string;
+  private apiUrl = environment.apiUrl;
 
   constructor(private http: HttpClient) {
     this.apiUrl = this.getApiUrl();
   }
 
   private getApiUrl(): string {
-    return environment.apiUrl;
+    return this.apiUrl;
   }
 
   public startGame() {
