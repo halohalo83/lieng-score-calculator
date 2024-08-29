@@ -71,20 +71,26 @@ export class HomeComponent {
     });
   }
 
-  createSheet() {
-    this.apiService.createSheet().subscribe((response: any) => {
+  async createSheet() {
+    try {
+      const response = await this.apiService.createSheet();
       if (response.success) {
         this.getAllSheets();
       }
-    });
+    } catch (error) {
+      console.error('Error creating sheet:', error);
+    }
   }
 
-  getAllSheets() {
-    this.apiService.getAllSheets().subscribe((response: any) => {
+  async getAllSheets() {
+    try {
+      const response = await this.apiService.getAllSheets();
       if (response.success && response.result.length > 0) {
         this.sheets = response.result;
         this.form.get('selectedSheetId')?.setValue(this.sheets[this.sheets.length - 1].sheetId);
       }
-    });
+    } catch (error) {
+      console.error('Error getting all sheets:', error);
+    }
   }
 }

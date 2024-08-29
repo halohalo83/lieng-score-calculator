@@ -1,8 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import axios from 'axios';
 import { environment } from '../environments/environment';
-import { Observable } from 'rxjs';
-import { SheetModel } from './models/sheet.model';
 
 @Injectable({
   providedIn: 'root',
@@ -18,15 +17,33 @@ export class ApiService {
     return this.apiUrl;
   }
 
-  public startGame() {
-    return this.http.post(`${this.apiUrl}/start-game`, {});
+  public async startGame() {
+    try {
+      const response = await axios.post(`${this.apiUrl}/start-game`, {});
+      return response.data;
+    } catch (error) {
+      console.error('Error starting game:', error);
+      throw error;
+    }
   }
 
-  public getAllSheets() {
-    return this.http.get(`${this.apiUrl}/get-all-sheets`);
+  public async getAllSheets() {
+    try {
+      const response = await axios.get(`${this.apiUrl}/get-all-sheets`);
+      return response.data;
+    } catch (error) {
+      console.error('Error getting all sheets:', error);
+      throw error;
+    }
   }
 
-  public createSheet() {
-    return this.http.post(`${this.apiUrl}/create-sheet`, {});
+  public async createSheet() {
+    try {
+      const response = await axios.post(`${this.apiUrl}/create-sheet`, {});
+      return response.data;
+    } catch (error) {
+      console.error('Error creating sheet:', error);
+      throw error;
+    }
   }
 }
