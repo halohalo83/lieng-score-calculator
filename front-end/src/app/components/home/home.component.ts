@@ -16,6 +16,7 @@ import { GameService } from '../../game-service.service';
 import { CommonModule, NgFor, NgIf } from '@angular/common';
 import { SheetModel } from '../../models/sheet.model';
 import { NzIconModule } from 'ng-zorro-antd/icon';
+import { NgxSpinnerModule } from 'ngx-spinner';
 FormsModule;
 @Component({
   selector: 'app-home',
@@ -32,7 +33,8 @@ FormsModule;
     NgFor,
     NzSelectComponent,
     CommonModule,
-    NzIconModule
+    NzIconModule,
+    NgxSpinnerModule,
   ],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',
@@ -52,12 +54,19 @@ export class HomeComponent {
   }
 
   ngOnInit(): void {
-    this.getAllSheets();
+    this.checkAuth();
     this.form = this.fb.group({
       numberOfPlayers: [6, Validators.required],
       initialScore: [2, Validators.required],
-      selectedSheetId: [null, Validators.required]
+      selectedSheetId: [null, Validators.required],
     });
+  }
+
+  async checkAuth() {
+    const response = await this.apiService.checkAuth();
+    if (response.success) {
+      this.getAllSheets();
+    }
   }
 
   startGame() {
@@ -89,14 +98,14 @@ export class HomeComponent {
       const response = await this.apiService.getAllSheets();
       if (response.success && response.result.length > 0) {
         this.sheets = response.result;
-        this.form.get('selectedSheetId')?.setValue(this.sheets[this.sheets.length - 1].sheetId);
+        this.form
+          .get('selectedSheetId')
+          ?.setValue(this.sheets[this.sheets.length - 1].sheetId);
       }
     } catch (error) {
       console.error('Error getting all sheets:', error);
     }
   }
 
-  deleteSheet() {
-
-  }
+  deleteSheet() {}
 }

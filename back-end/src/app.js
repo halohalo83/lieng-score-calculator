@@ -33,17 +33,14 @@ app.get("/oauth2callback", async (req, res) => {
   }
 });
 
-// Start game route
-app.post("/api/start-game", async (req, res) => {
+// Check auth route
+app.get("/api/check-auth", async (req, res) => {
   try {
     const auth = await authorize();
-    const today = moment().format("DD/MM/YYYY");
-    const sheetName = await createSheet(auth, spreadsheetId, today);
-
-    res.json({ success: true, sheetName });
+    res.json({ success: auth.credentials !== null });
   } catch (error) {
-    console.error("Error starting game:", error);
-    res.status(500).json({ success: false, error: "Failed to start game" });
+    console.error("Error checking auth:", error);
+    res.status(500).json({ success: false });
   }
 });
 
