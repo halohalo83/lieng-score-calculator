@@ -95,4 +95,17 @@ export class ApiService {
       this.spinner.hide();
     }
   }
+
+  public async getRankings() {
+    this.spinner.show();
+    try {
+      const response = await axios.get(`${this.apiUrl}/get-rankings`);
+      return response.data;
+    } catch (error) {
+      console.error('Error getting rankings:', error);
+      throw error;
+    } finally {
+      this.spinner.hide();
+    }
+  }
 }

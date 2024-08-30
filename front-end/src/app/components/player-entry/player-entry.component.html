@@ -1,5 +1,5 @@
 <div class="container">
-  <nz-table #basicTable [nzData]="players" [nzFrontPagination]="false" [nzShowPagination]="false" [nzScroll]="{ y: '500px' }">
+  <nz-table class="mb-3" #basicTable [nzData]="participants" [nzFrontPagination]="false" [nzShowPagination]="false" [nzScroll]="{ y: '500px' }">
     <thead>
       <tr>
         <th [nzWidth]="'250px'">Tên</th>
@@ -8,7 +8,7 @@
     </thead>
     <tbody>
       <tr *ngFor="let data of basicTable.data">
-        <td>{{data.playerName}}</td>
+        <td>{{data.name}}</td>
         <td><nz-switch [(ngModel)]="data.isParticipate"></nz-switch></td>
       </tr>
     </tbody>
@@ -31,7 +31,7 @@
         [nzSize]="'large'"
         nz-button
         nzType="primary"
-        (click)="saveNames()"
+        (click)="goToScoreEntry()"
       >
         Tiếp tục
       </button>

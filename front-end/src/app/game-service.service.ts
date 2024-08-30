@@ -1,12 +1,12 @@
 import { Injectable } from '@angular/core';
-import { SheetModel } from './models/sheet.model';
-
+import { ParticipantModel } from './models/player.model';
 @Injectable({
   providedIn: 'root',
 })
 export class GameService {
   private selectedSheetId: number | null = null;
   private initialScore: number = 0;
+  private participants: ParticipantModel[] = [];
 
   constructor() {
     this.loadFromLocalStorage();
@@ -26,10 +26,24 @@ export class GameService {
     this.saveToLocalStorage();
   }
 
+  getSelectedSheet(): number | null {
+    return this.selectedSheetId;
+  }
+
+  setParticipants(participants: ParticipantModel[]): void {
+    this.participants = participants;
+    this.saveToLocalStorage();
+  }
+
+  getParticipants(): ParticipantModel[] {
+    return this.participants;
+  }
+
   private saveToLocalStorage(): void {
     const data = {
       selectedSheetId: this.selectedSheetId,
       initialScore: this.initialScore,
+      participants: this.participants
     };
     localStorage.setItem('gameServiceData', JSON.stringify(data));
   }
@@ -40,6 +54,7 @@ export class GameService {
       const parsedData = JSON.parse(data);
       this.selectedSheetId = parsedData.selectedSheetId;
       this.initialScore = parsedData.initialScore;
+      this.participants = parsedData.participants;
     }
   }
 }

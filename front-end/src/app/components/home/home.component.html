@@ -1,10 +1,5 @@
 <div class="container">
-  <!-- <img
-    src="https://media1.tenor.com/m/CkrY3ESk_ecAAAAC/tuannguyen12-travis.gif"
-    class="mb-3"
-  />
-
-   -->
+  <!-- <img src="/assets/img/mck.jpg" class="mb-3" /> -->
   <form [formGroup]="form">
     <nz-row [nzGutter]="[8, 8]">
       <nz-col nzSpan="24">
@@ -21,10 +16,6 @@
           ></nz-input-number>
         </nz-input-number-group>
         <ng-template #prefixChicken>
-          <!-- <img
-            src="https://cdn.icon-icons.com/icons2/1808/PNG/96/animal-chicken_115218.png"
-            width="25"
-          /> -->
           Nhập gà vào
         </ng-template>
       </nz-col>
@@ -42,20 +33,17 @@
         </nz-select>
       </nz-col>
       <nz-col nzSpan="3">
-        <button nz-button class="w-100" nzDanger (click)="deleteSheet()"><span nzDanger nz-icon nzType="delete"></span></button>
-         </nz-col>
+        <button nz-button class="w-100" nzDanger (click)="deleteSheet()">
+          <span nzDanger nz-icon nzType="delete"></span>
+        </button>
+      </nz-col>
       <nz-col nzSpan="9">
         <button class="w-100" nz-button (click)="createSheet()">
-          Tạo Sheet
+          Tạo Sheet mới
         </button>
       </nz-col>
       <nz-col nzSpan="12">
-        <button
-          class="w-100"
-          nz-button
-          (click)="back()"
-          [nzSize]="'large'"
-        >
+        <button class="w-100" nz-button (click)="back()" [nzSize]="'large'">
           Quay lại
         </button>
       </nz-col>
@@ -75,4 +63,11 @@
     </nz-row>
   </form>
 </div>
-<ngx-spinner bdColor = "rgba(0, 0, 0, 0.8)" size = "medium" color = "#fff" type = "ball-scale-multiple" [fullScreen] = "true"><p style="color: white" > Đang nấu gà... </p></ngx-spinner>
+<ngx-spinner
+  bdColor="rgba(0, 0, 0, 0.8)"
+  size="medium"
+  color="#fff"
+  type="ball-scale-multiple"
+  [fullScreen]="true"
+  ><p style="color: white">Đang nấu gà...</p></ngx-spinner
+>

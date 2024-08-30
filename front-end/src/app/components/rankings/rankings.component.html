@@ -6,34 +6,24 @@
     [nzFrontPagination]="false"
     [nzShowPagination]="false"
     [nzScroll]="{ y: '500px' }"
+    nzBordered
   >
     <thead>
       <tr>
-        <th nzAlign="center" [nzWidth]="'100px'">Tên</th>
-        <th nzAlign="center" [nzWidth]="'70px'">+/-</th>
-        <th nzAlign="center" [nzWidth]="'110px'">Ăn</th>
+        <th nzAlign="center" [nzWidth]="'100px'">Rank</th>
+        <th [nzWidth]="'150px'">Tên</th>
         <th nzAlign="center" [nzWidth]="'100px'">Gà</th>
       </tr>
     </thead>
     <tbody>
       <tr *ngFor="let data of basicTable.data">
+        <td nzAlign="center">{{ data.rank }}</td>
         <td>{{ data.name }}</td>
-        <td><app-flip-card [(ngModel)]="data.isPositive"></app-flip-card></td>
-        <td>
-          <nz-input-number
-            [nzSize]="'large'"
-            [nzMin]="0"
-            type="number"
-            inputmode="numeric"
-            [(ngModel)]="data.score"
-            nzPlaceHolder="Bú"
-          ></nz-input-number>
-        </td>
-        <td nzAlign="center"><img src="/assets/img/egg.jpg" width="40px"></td>
+        <td nzAlign="center">{{ data.score }}</td>
       </tr>
     </tbody>
   </nz-table>
-  <nz-row [nzGutter]="[16, 16]">
+  <nz-row [nzGutter]="16">
     <nz-col nzSpan="12">
       <button
         class="w-100"
@@ -51,21 +41,9 @@
         [nzSize]="'large'"
         nz-button
         nzType="primary"
-        (click)="nextRound()"
+        (click)="refresh()"
       >
-        Nốt ván
-      </button>
-    </nz-col>
-    <nz-col nzSpan="24">
-      <button
-        class="w-100"
-        [nzSize]="'large'"
-        nz-button
-        nzDanger
-        nzType="primary"
-        (click)="finishGame()"
-      >
-        Đứng dậy đi về
+        Làm mới
       </button>
     </nz-col>
   </nz-row>

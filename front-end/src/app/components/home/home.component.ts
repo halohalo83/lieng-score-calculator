@@ -97,11 +97,17 @@ export class HomeComponent {
   async getAllSheets() {
     try {
       const response = await this.apiService.getAllSheets();
-      if (response.success && response.result.length > 0) {
+      if (response.success) {
         this.sheets = response.result;
-        this.form
-          .get('selectedSheetId')
-          ?.setValue(this.sheets[this.sheets.length - 1].sheetId);
+
+        if (this.sheets.length > 0) {
+          this.form
+            .get('selectedSheetId')
+            ?.setValue(this.sheets[this.sheets.length - 1].sheetId);
+        }
+        else {
+          this.form.get('selectedSheetId')?.setValue(null);
+        }
       }
     } catch (error) {
       console.error('Error getting all sheets:', error);

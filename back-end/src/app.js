@@ -19,6 +19,7 @@ app.listen(PORT, () => {
 });
 
 const moment = require("moment");
+const PlayerRankingModel = require("./models/player-ranking-model");
 
 // OAuth2 callback route
 app.get("/oauth2callback", async (req, res) => {
@@ -77,7 +78,33 @@ app.get("/api/get-all-players", async (req, res) => {
     res.json({ success: true, players });
   } catch (error) {
     console.error("Error getting all players:", error);
-    res.status(500).json({ success: false, error: "Failed to get all players" });
+    res
+      .status(500)
+      .json({ success: false, error: "Failed to get all players" });
+  }
+});
+
+// Get all rankings route
+app.get("/api/get-rankings", async (req, res) => {
+  try {
+    const auth = await authorize();
+    const sheets = google.sheets({ version: "v4", auth });
+
+    const sheetData = await sheets.spreadsheets.values.get({
+      spreadsheetId,
+      range: `BXH!G2:J`,
+    });
+
+    const rankings = sheetData.data.values.map(
+      ([rank, id, name, score]) => new PlayerRankingModel(rank, id, name, score)
+    );
+
+    res.json({ success: true, rankings });
+  } catch (error) {
+    console.error("Error getting rankings:", error);
+    res
+      .status(500)
+      .json({ success: false, error: "Failed to get rankings" });
   }
 });
 
@@ -115,7 +142,7 @@ app.get("/api/check-data/:sheetId", async (req, res) => {
   try {
     const auth = await authorize();
     const sheets = google.sheets({ version: "v4", auth });
-    console.log(sheets, 'sheetData');
+    console.log(sheets, "sheetData");
 
     const sheetData = await sheets.spreadsheets.values.get({
       spreadsheetId,
@@ -128,7 +155,6 @@ app.get("/api/check-data/:sheetId", async (req, res) => {
     res.status(500).json({ success: false, error: "Failed to check sheet" });
   }
 });
-
 
 async function createSheet(auth, spreadsheetId, today) {
   const sheets = google.sheets({ version: "v4", auth });
@@ -184,7 +210,11 @@ async function getAllSheets(auth, spreadsheetId) {
 
   const sheetsList = await sheets.spreadsheets.get({ spreadsheetId });
   const existingSheets = sheetsList.data.sheets
-    .filter((sheet) => sheet.properties.sheetId !== 0 && sheet.properties.sheetId !== rankingSheetId)
+    .filter(
+      (sheet) =>
+        sheet.properties.sheetId !== 0 &&
+        sheet.properties.sheetId !== rankingSheetId
+    )
     .map(
       (sheet) =>
         new SheetModel(
