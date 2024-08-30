@@ -24,7 +24,7 @@ export class ApiService {
       const response = await axios.get(`${this.apiUrl}/check-auth`);
       return response.data;
     } catch (error) {
-      alert('You are not authenticated. Check the console for more information.');
+      alert(`Error checking auth: ${error}`);
       console.error('Error checking auth:', error);
     } finally {
       this.spinner.hide();
@@ -77,6 +77,19 @@ export class ApiService {
       return response.data.hasData;
     } catch (error) {
       console.error('Error checking sheet:', error);
+      throw error;
+    } finally {
+      this.spinner.hide();
+    }
+  }
+
+  public async getAllPlayers() {
+    this.spinner.show();
+    try {
+      const response = await axios.get(`${this.apiUrl}/get-all-players`);
+      return response.data;
+    } catch (error) {
+      console.error('Error getting all players:', error);
       throw error;
     } finally {
       this.spinner.hide();

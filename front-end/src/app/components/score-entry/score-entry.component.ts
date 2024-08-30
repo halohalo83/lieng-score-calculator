@@ -19,7 +19,7 @@ export class ScoreEntryComponent {
   constructor(private router: Router, private gameService: GameService) { }
 
   ngOnInit(): void {
-    this.players = this.gameService.getPlayers().map(player => ({ ...player, score: this.gameService.getInitialScore() }));
+    // this.players = this.gameService.getPlayers().map(player => ({ ...player, score: this.gameService.getInitialScore() }));
   }
 
   nextRound() {

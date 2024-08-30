@@ -4,26 +4,11 @@
     class="mb-3"
   />
 
-  <h2 class="text-center">Ăn Gà v1.0</h2> -->
-
+   -->
   <form [formGroup]="form">
     <nz-row [nzGutter]="[8, 8]">
-      <nz-col nzSpan="12">
-        <nz-input-number-group nzAddOnBefore="Nhập số người">
-          <nz-input-number
-            [nzSize]="'large'"
-            class="form-control"
-            [nzMin]="0"
-            type="number"
-            inputmode="numeric"
-            formControlName="numberOfPlayers"
-            nzPlaceHolder="Nhập số người"
-            required
-          ></nz-input-number>
-        </nz-input-number-group>
-      </nz-col>
-      <nz-col nzSpan="12">
-        <nz-input-number-group [nzAddOnBefore]="prefixChicken">
+      <nz-col nzSpan="24">
+        <nz-input-number-group [nzAddOnBefore]="prefixChicken" class="w-100">
           <nz-input-number
             [nzSize]="'large'"
             class="form-control"
@@ -36,10 +21,11 @@
           ></nz-input-number>
         </nz-input-number-group>
         <ng-template #prefixChicken>
-          <img
+          <!-- <img
             src="https://cdn.icon-icons.com/icons2/1808/PNG/96/animal-chicken_115218.png"
             width="25"
-          />
+          /> -->
+          Nhập gà vào
         </ng-template>
       </nz-col>
       <nz-col nzSpan="12">
@@ -56,24 +42,34 @@
         </nz-select>
       </nz-col>
       <nz-col nzSpan="3">
-        <button nz-button class="w-100" nzDanger (click)="confirmDelete()"><span nzDanger nz-icon nzType="delete"></span></button>
+        <button nz-button class="w-100" nzDanger (click)="deleteSheet()"><span nzDanger nz-icon nzType="delete"></span></button>
          </nz-col>
       <nz-col nzSpan="9">
         <button class="w-100" nz-button (click)="createSheet()">
           Tạo Sheet
         </button>
       </nz-col>
-      <nz-col nzSpan="24">
+      <nz-col nzSpan="12">
+        <button
+          class="w-100"
+          nz-button
+          (click)="back()"
+          [nzSize]="'large'"
+        >
+          Quay lại
+        </button>
+      </nz-col>
+      <nz-col nzSpan="12">
         <button
           type="submit"
           class="w-100"
           nz-button
           nzType="primary"
           (click)="startGame()"
-          [disabled]="form.invalid || f['numberOfPlayers'].value === 0"
+          [disabled]="form.invalid"
           [nzSize]="'large'"
         >
-          Bắt đầu
+          Tiếp tục
         </button>
       </nz-col>
     </nz-row>

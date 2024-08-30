@@ -26,7 +26,8 @@ async function authorize() {
       access_type: 'offline',
       scope: ['https://www.googleapis.com/auth/spreadsheets'],
     });
-    console.log('Authorize this app by visiting this url:', authUrl);
+    // console.log('Authorize this app by visiting this url:', authUrl);
+    alert('Authorize this app by visiting this url:', authUrl);
 
     return oAuth2Client;
   }

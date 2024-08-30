@@ -36,7 +36,7 @@ FormsModule;
     CommonModule,
     NzIconModule,
     NgxSpinnerModule,
-    NzModalModule
+    NzModalModule,
   ],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',
@@ -59,7 +59,6 @@ export class HomeComponent {
   ngOnInit(): void {
     this.checkAuth();
     this.form = this.fb.group({
-      numberOfPlayers: [6, Validators.required],
       initialScore: [2, Validators.required],
       selectedSheetId: [null, Validators.required],
     });
@@ -79,7 +78,6 @@ export class HomeComponent {
 
     this.router.navigate(['/player-entry'], {
       queryParams: {
-        players: this.form.get('numberOfPlayers')?.value,
         initialScore: this.form.get('initialScore')?.value,
       },
     });
@@ -115,38 +113,26 @@ export class HomeComponent {
     if (!sheetId) {
       return;
     }
-
-    this.apiService.deleteSheet(sheetId).then((response) => {
-      if (response.success) {
-        this.getAllSheets();
-      }
+    this.modal.confirm({
+      nzTitle: 'Có chắc chắn muốn xóa không?',
+      nzOkText: 'Xóa mẹ đi',
+      nzOkType: 'primary',
+      nzOkDanger: true,
+      nzCancelText: 'Đéo',
+      nzOnOk: () => {
+        this.apiService.deleteSheet(sheetId).then((response) => {
+          if (response.success) {
+            this.getAllSheets();
+          }
+        });
+      },
+      nzOnCancel: () => {
+        return;
+      },
     });
   }
 
-  confirmDelete() {
-    const sheetId = this.form.get('selectedSheetId')?.value;
-    if (!sheetId) {
-      return;
-    }
-
-    this.apiService.checkSheet(sheetId).then((response) => {
-      if (response.success && response.hasData) {
-        this.modal.confirm({
-          nzTitle: 'Có data, có chắc chắn muốn xóa không?',
-          nzOkText: 'Xóa mẹ đi',
-          nzOkType: 'primary',
-          nzOkDanger: true,
-          nzCancelText: 'Đéo',
-          nzOnOk: () => {
-            this.deleteSheet();
-          },
-          nzOnCancel: () => {
-            return;
-          },
-         });
-      } else {
-        this.deleteSheet();
-      }
-    });
+  back() {
+    this.router.navigate(['/']);
   }
 }

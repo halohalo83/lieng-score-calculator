@@ -7,7 +7,6 @@ import { SheetModel } from './models/sheet.model';
 export class GameService {
   private selectedSheetId: number | null = null;
   private initialScore: number = 0;
-  private players: { name: string }[] = [];
 
   constructor() {
     this.loadFromLocalStorage();
@@ -22,15 +21,6 @@ export class GameService {
     return this.initialScore;
   }
 
-  setPlayers(players: { name: string }[]): void {
-    this.players = players;
-    this.saveToLocalStorage();
-  }
-
-  getPlayers(): { name: string }[] {
-    return this.players;
-  }
-
   setSelectedSheet(sheetId: number): void {
     this.selectedSheetId = sheetId;
     this.saveToLocalStorage();
@@ -40,7 +30,6 @@ export class GameService {
     const data = {
       selectedSheetId: this.selectedSheetId,
       initialScore: this.initialScore,
-      players: this.players,
     };
     localStorage.setItem('gameServiceData', JSON.stringify(data));
   }
@@ -51,7 +40,6 @@ export class GameService {
       const parsedData = JSON.parse(data);
       this.selectedSheetId = parsedData.selectedSheetId;
       this.initialScore = parsedData.initialScore;
-      this.players = parsedData.players;
     }
   }
 }

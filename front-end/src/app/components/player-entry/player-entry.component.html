@@ -1,17 +1,18 @@
 <div class="container">
-  <h1 class="text-center">Nhập tên</h1>
-  <div *ngFor="let player of players; let i = index">
-    <nz-input-group [nzPrefix]="i + 1 + '.'" class="mb-3">
-      <input
-        nz-input
-        placeholder="Nhập tên"
-        [(ngModel)]="players[i].name"
-        [tabIndex]="i"
-        #playerInput
-        (keydown.enter)="focusNextInput(i)"
-      />
-    </nz-input-group>
-  </div>
+  <nz-table #basicTable [nzData]="players" [nzFrontPagination]="false" [nzShowPagination]="false" [nzScroll]="{ y: '500px' }">
+    <thead>
+      <tr>
+        <th [nzWidth]="'250px'">Tên</th>
+        <th>Tham gia</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let data of basicTable.data">
+        <td>{{data.playerName}}</td>
+        <td><nz-switch [(ngModel)]="data.isParticipate"></nz-switch></td>
+      </tr>
+    </tbody>
+  </nz-table>
   <nz-row [nzGutter]="16">
     <nz-col nzSpan="12">
       <button
@@ -37,3 +38,4 @@
     </nz-col>
   </nz-row>
 </div>
+<ngx-spinner bdColor = "rgba(0, 0, 0, 0.8)" size = "medium" color = "#fff" type = "ball-scale-multiple" [fullScreen] = "true"><p style="color: white" > Đang nấu gà... </p></ngx-spinner>

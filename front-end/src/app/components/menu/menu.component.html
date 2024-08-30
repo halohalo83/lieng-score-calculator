@@ -1,0 +1,52 @@
+<div class="container">
+  <!-- <img
+    src="https://media1.tenor.com/m/CkrY3ESk_ecAAAAC/tuannguyen12-travis.gif"
+    class="mb-3"
+  /> -->
+
+  <h2 class="text-center">Ăn gà v1.0</h2>
+  <nz-row
+    [nzGutter]="[16, 16]"
+    [nzJustify]="'space-between'"
+    [nzAlign]="'middle'"
+  >
+    <nz-col nzSpan="24">
+      <button
+        nz-button
+        class="w-100"
+        nzType="primary"
+        [nzSize]="'large'"
+        nzShape="round"
+        (click)="start()"
+        [disabled]="!isAuth"
+      >
+        Bắt đầu
+      </button>
+    </nz-col>
+    <nz-col nzSpan="24">
+      <button
+        nz-button
+        class="w-100"
+        nzType="primary"
+        [nzSize]="'large'"
+        nzShape="round"
+        [disabled]="true"
+      >
+        Đăng ký
+      </button>
+    </nz-col>
+    <nz-col nzSpan="24">
+      <button
+        [disabled]="true"
+        nz-button
+        class="w-100"
+        nzType="primary"
+        [nzSize]="'large'"
+        nzShape="round"
+      >
+        Bảng xếp hạng
+      </button>
+    </nz-col>
+  </nz-row>
+</div>
+<ngx-spinner bdColor = "rgba(0, 0, 0, 0.8)" size = "medium" color = "#fff" type = "ball-scale-multiple" [fullScreen] = "true"><p style="color: white" > Đang nấu gà... </p></ngx-spinner>

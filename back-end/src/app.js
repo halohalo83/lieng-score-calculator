@@ -10,8 +10,9 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 const PORT = process.env.PORT || 3000;
-const { spreadsheetId } = require("./config/config");
+const { spreadsheetId, rankingSheetId } = require("./config/config");
 const SheetModel = require("./models/sheet-model");
+const PlayerModel = require("./models/player-model");
 
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
@@ -55,6 +56,28 @@ app.get("/api/get-all-sheets", async (req, res) => {
   } catch (error) {
     console.error("Error getting all sheets:", error);
     res.status(500).json({ success: false, error: "Failed to get all sheets" });
+  }
+});
+
+// Get all players route
+app.get("/api/get-all-players", async (req, res) => {
+  try {
+    const auth = await authorize();
+    const sheets = google.sheets({ version: "v4", auth });
+
+    const sheetData = await sheets.spreadsheets.values.get({
+      spreadsheetId,
+      range: `BXH!A2:C`,
+    });
+
+    const players = sheetData.data.values.map(
+      ([id, name, score]) => new PlayerModel(id, name, score)
+    );
+
+    res.json({ success: true, players });
+  } catch (error) {
+    console.error("Error getting all players:", error);
+    res.status(500).json({ success: false, error: "Failed to get all players" });
   }
 });
 
@@ -161,7 +184,7 @@ async function getAllSheets(auth, spreadsheetId) {
 
   const sheetsList = await sheets.spreadsheets.get({ spreadsheetId });
   const existingSheets = sheetsList.data.sheets
-    .filter((sheet) => sheet.properties.sheetId !== 0)
+    .filter((sheet) => sheet.properties.sheetId !== 0 && sheet.properties.sheetId !== rankingSheetId)
     .map(
       (sheet) =>
         new SheetModel(

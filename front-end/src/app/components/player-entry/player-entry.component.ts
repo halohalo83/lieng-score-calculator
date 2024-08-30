@@ -6,43 +6,73 @@ import { NzButtonComponent } from 'ng-zorro-antd/button';
 import { NzInputGroupComponent, NzInputModule } from 'ng-zorro-antd/input';
 import { GameService } from '../../game-service.service';
 import { NzGridModule } from 'ng-zorro-antd/grid';
+import { ApiService } from '../../api.service';
+import { PlayerModel } from '../../models/player.model';
+import { NzTableModule } from 'ng-zorro-antd/table';
+import { NzSwitchModule } from 'ng-zorro-antd/switch';
+import { NgxSpinnerModule } from 'ngx-spinner';
+
+class Participant {
+  playerId: number | undefined;
+  playerName: string | undefined;
+  isParticipate: boolean = false;
+}
 
 @Component({
   selector: 'app-player-entry',
   standalone: true,
-  imports: [FormsModule, NzButtonComponent, NzInputGroupComponent, NgFor, NzInputModule,  NzGridModule],
+  imports: [
+    FormsModule,
+    NzButtonComponent,
+    NzInputGroupComponent,
+    NgFor,
+    NzInputModule,
+    NzGridModule,
+    NzTableModule,
+    NzSwitchModule,
+    NgxSpinnerModule
+  ],
   templateUrl: './player-entry.component.html',
   styleUrl: './player-entry.component.scss',
 })
 export class PlayerEntryComponent {
-  @ViewChildren('playerInput') playerInputs!: QueryList<ElementRef>;
-  players: { name: string }[] = [];
-
+  players: Participant[] = [];
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private gameService: GameService
+    private apiService: ApiService
   ) {}
 
   ngOnInit(): void {
-    const numPlayers = +this.route.snapshot.queryParams['players'];
-
-    this.players = Array.from({ length: numPlayers }, () => ({ name: '' }));
+    this.checkAuth();
   }
 
-  focusNextInput(index: number): void {
-    const inputs = this.playerInputs.toArray();
-    if (index + 1 < inputs.length) {
-      inputs[index + 1].nativeElement.focus();
+  getAllPlayers() {
+    this.apiService.getAllPlayers().then((response) => {
+      if (response.success) {
+        this.players = response.players.map((player: PlayerModel) => {
+          return {
+            playerId: player.id,
+            playerName: player.name,
+            isParticipate: false,
+          };
+        });
+      }
+    });
+  }
+
+  async checkAuth() {
+    const response = await this.apiService.checkAuth();
+    if (response.success) {
+      this.getAllPlayers();
     }
   }
 
   saveNames() {
-    this.gameService.setPlayers(this.players);
     this.router.navigate(['/score-entry']);
   }
 
   back() {
-    this.router.navigate(['/']);
+    this.router.navigate(['/home']);
   }
 }
