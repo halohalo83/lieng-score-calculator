@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import axios from 'axios';
 import { environment } from '../environments/environment';
 import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
+import { ParticipantModel, PlayerModel } from './models/player.model';
 
 @Injectable({
   providedIn: 'root',
@@ -56,6 +57,25 @@ export class ApiService {
     }
   }
 
+  public async updateSheet(sheetId: number, players: PlayerModel[]) {
+    this.spinner.show();
+    try {
+      const response = await axios.post(
+        `${this.apiUrl}/update-sheet`,
+        {
+          sheetId: sheetId,
+          players: players,
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error('Error updating sheet:', error);
+      throw error;
+    } finally {
+      this.spinner.hide();
+    }
+  }
+
   public async createSheet() {
     this.spinner.show();
     try {
@@ -72,7 +92,9 @@ export class ApiService {
   public async deleteSheet(sheetId: number) {
     this.spinner.show();
     try {
-      const response = await axios.delete(`${this.apiUrl}/delete-sheet/${sheetId}`);
+      const response = await axios.delete(
+        `${this.apiUrl}/delete-sheet/${sheetId}`
+      );
       return response.data;
     } catch (error) {
       console.error('Error deleting sheet:', error);

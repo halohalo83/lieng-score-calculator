@@ -9,7 +9,11 @@ import { NzSwitchModule } from 'ng-zorro-antd/switch';
 import { NzTableModule } from 'ng-zorro-antd/table';
 import { NgxSpinnerModule } from 'ngx-spinner';
 import { ApiService } from '../../api.service';
-import { ParticipantModel, PlayerModel } from '../../models/player.model';
+import {
+  ParticipantModel,
+  PlayerModel,
+  PlayerScoreModel,
+} from '../../models/player.model';
 import { GameService } from '../../game-service.service';
 
 @Component({
@@ -44,13 +48,30 @@ export class PlayerEntryComponent {
   getAllPlayers() {
     this.apiService.getAllPlayers().then((response) => {
       if (response.success) {
-        this.participants = response.players.map((player: PlayerModel) => {
-          return {
-            id: player.id,
-            name: player.name,
-            isParticipate: false,
-          };
-        });
+        var participantsFromGameService = this.gameService.getParticipants();
+        if (participantsFromGameService.length > 0) {
+          this.participants = response.players.map(
+            (player: PlayerScoreModel) => {
+              return {
+                id: player.id,
+                name: player.name,
+                isParticipate: participantsFromGameService.some(
+                  (x) => x.id === player.id
+                ),
+              };
+            }
+          );
+        } else {
+          this.participants = response.players.map(
+            (player: PlayerScoreModel) => {
+              return {
+                id: player.id,
+                name: player.name,
+                isParticipate: false,
+              };
+            }
+          );
+        }
       }
     });
   }
@@ -63,14 +84,24 @@ export class PlayerEntryComponent {
   }
 
   hasParticipants(): boolean {
-    return this.participants.filter(x => x.isParticipate).length > 1;
+    return this.participants.filter((x) => x.isParticipate).length > 1;
   }
-
-
 
   goToScoreEntry() {
     this.gameService.setParticipants(
       this.participants.filter((x) => x.isParticipate)
+    );
+
+    this.apiService.updateSheet(
+      this.gameService.getSelectedSheet(),
+      this.participants
+        .filter((x) => x.isParticipate)
+        .map((x) => {
+          return {
+            id: x.id,
+            name: x.name,
+          } as PlayerModel;
+        })
     );
     this.router.navigate(['/score-entry']);
   }

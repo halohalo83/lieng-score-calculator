@@ -4,7 +4,7 @@ import { ParticipantModel } from './models/player.model';
   providedIn: 'root',
 })
 export class GameService {
-  private selectedSheetId: number | null = null;
+  private selectedSheetId: number = 0;
   private initialScore: number = 0;
   private participants: ParticipantModel[] = [];
 
@@ -26,7 +26,7 @@ export class GameService {
     this.saveToLocalStorage();
   }
 
-  getSelectedSheet(): number | null {
+  getSelectedSheet(): number {
     return this.selectedSheetId;
   }
 

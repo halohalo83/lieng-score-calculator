@@ -11,7 +11,6 @@ async function getOAuth2Client() {
   if (!client_id || !client_secret) {
     throw new Error("Missing required credentials fields: 'client_id', 'client_secret'");
   }
-  console.log(process.env.NODE_ENV, 'process.env.NODE_ENV');
   const redirect_uris = process.env.NODE_ENV === 'development' ? developmentRedirectUrl :  productionRedirectUrl;
   return new google.auth.OAuth2(client_id, client_secret, redirect_uris);
 }

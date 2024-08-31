@@ -13,7 +13,7 @@ app.use(express.json());
 const PORT = process.env.PORT || 3000;
 const { spreadsheetId, rankingSheetId } = require("./config/config");
 const SheetModel = require("./models/sheet-model");
-const PlayerModel = require("./models/player-model");
+const PlayerScoreModel = require("./models/player-score-model");
 
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
@@ -85,7 +85,7 @@ app.get("/api/get-all-players", async (req, res) => {
     });
 
     const players = sheetData.data.values.map(
-      ([id, name, score]) => new PlayerModel(id, name, score)
+      ([id, name, score]) => new PlayerScoreModel(id, name, score)
     );
 
     res.json({ success: true, players });
@@ -149,6 +149,106 @@ app.delete("/api/delete-sheet/:sheetId", async (req, res) => {
   }
 });
 
+// Function get sheet name by id route
+async function getSheetNameById(auth, sheetId) {
+  const sheets = google.sheets({ version: "v4", auth });
+
+  const sheetData = await sheets.spreadsheets.get({ spreadsheetId });
+  const sheet = sheetData.data.sheets.find(
+    (sheet) => sheet.properties.sheetId === Number(sheetId)
+  );
+
+  return sheet.properties.title;
+}
+
+// Update sheet route
+app.post("/api/update-sheet", async (req, res) => {
+  const { sheetId, players } = req.body;
+  
+  try {
+    const auth = await authorize();
+    const sheets = google.sheets({ version: "v4", auth });
+
+    const names = players.map((player) => player.name);
+
+    const range = `${await getSheetNameById(auth, sheetId)}!A1`;
+
+    const sheetData = await sheets.spreadsheets.values.get({
+      spreadsheetId,
+      range,
+    });
+
+    if (sheetData.data.values) {
+      await sheets.spreadsheets.values.clear({
+        spreadsheetId,
+        range,
+      });
+    }
+
+    const response = sheets.spreadsheets.values.update({
+      spreadsheetId,
+      range,
+      valueInputOption: "USER_ENTERED",
+      resource: {
+        values: [names],
+      },
+    });
+
+    res.json({ success: true, response });
+  } catch (error) {
+    console.error("Error updating sheet:", error);
+    res.status(500).json({ success: false, error: "Failed to update sheet" });
+  }
+});
+
+
+// save score to sheet route
+app.post("/api/save-score", async (req, res) => {
+  // req.body will have sheetId, list of playerModel
+  const { sheetId, players } = req.body;
+  try {
+    const auth = await authorize();
+    const sheets = google.sheets({ version: "v4", auth });
+
+    // Save score to rankings sheet
+    const sheetData = await sheets.spreadsheets.values.get({
+      spreadsheetId,
+      range: `BXH!A2:C`,
+    });
+
+    const playerScores = sheetData.data.values.map(
+      ([id, name, score]) => new PlayerScoreModel(id, name, score)
+    );
+
+    const playerScoresMap = playerScores.reduce((acc, player) => {
+      acc[player.id] = player;
+      return acc;
+    }, {});
+
+    const rankingValues = players.map((player) => {
+      const playerScore = playerScoresMap[player.id];
+      if (playerScore) {
+        playerScore.score = player.score;
+      }
+      return [player.id, player.name, player.score];
+    });
+
+    await sheets.spreadsheets.values.update({
+      spreadsheetId,
+      range: `BXH!A2:C`,
+      valueInputOption: "USER_ENTERED",
+      resource: {
+        rankingValues,
+      },
+    });
+
+    res.json({ success: true });
+  } catch (error) {
+    console.error("Error saving score:", error);
+    res.status(500).json({ success: false, error: "Failed to save score" });
+  }
+});
+
 async function createSheet(auth, spreadsheetId, today) {
   const sheets = google.sheets({ version: "v4", auth });
 
@@ -180,53 +280,6 @@ async function createSheet(auth, spreadsheetId, today) {
 
   return sheetName;
 }
-
-// save score to sheet route
-app.post("/api/save-score", async (req, res) => {
-  // req.body will have sheetId, list of playerModel
-  const { sheetId, players } = req.body;
-  try {
-    const auth = await authorize();
-    const sheets = google.sheets({ version: "v4", auth });
-
-    // Save score to rankings sheet
-    const sheetData = await sheets.spreadsheets.values.get({
-      spreadsheetId,
-      range: `BXH!A2:C`,
-    });
-
-    const playerScores = sheetData.data.values.map(
-      ([id, name, score]) => new PlayerModel(id, name, score)
-    );
-
-    const playerScoresMap = playerScores.reduce((acc, player) => {
-      acc[player.id] = player;
-      return acc;
-    }, {});
-
-    const rankingValues = players.map((player) => {
-      const playerScore = playerScoresMap[player.id];
-      if (playerScore) {
-        playerScore.score = player.score;
-      }
-      return [player.id, player.name, player.score];
-    });
-
-    await sheets.spreadsheets.values.update({
-      spreadsheetId,
-      range: `BXH!A2:C`,
-      valueInputOption: "USER_ENTERED",
-      resource: {
-        rankingValues,
-      },
-    });
-
-    res.json({ success: true });
-  } catch (error) {
-    console.error("Error saving score:", error);
-    res.status(500).json({ success: false, error: "Failed to save score" });
-  }
-});
 
 async function deleteSheet(auth, spreadsheetId, sheetId) {
   const sheets = google.sheets({ version: "v4", auth });
