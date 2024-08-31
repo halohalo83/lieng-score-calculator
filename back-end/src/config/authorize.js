@@ -1,16 +1,17 @@
 const fs = require('fs');
 const { google } = require('googleapis');
 const path = require('path');
-
+const { productionRedirectUrl, developmentRedirectUrl } = require("./config");
 const TOKEN_PATH = path.resolve(__dirname, 'token.json');
 
 async function getOAuth2Client() {
   const credentials = JSON.parse(fs.readFileSync(path.resolve(__dirname, 'credentials.json')));
-  const { client_secret, client_id, redirect_uris } = credentials.web;
-  if (!client_id || !client_secret || !redirect_uris) {
-    throw new Error("Missing required credentials fields: 'client_id', 'client_secret', 'redirect_uris'");
+  const { client_secret, client_id } = credentials.web;
+  if (!client_id || !client_secret) {
+    throw new Error("Missing required credentials fields: 'client_id', 'client_secret'");
   }
-  return new google.auth.OAuth2(client_id, client_secret, redirect_uris[0]);
+  const redirect_uris = process.env.NODE_ENV === 'production' ?  productionRedirectUrl : developmentRedirectUrl;
+  return new google.auth.OAuth2(client_id, client_secret, redirect_uris);
 }
 
 async function authorize() {
