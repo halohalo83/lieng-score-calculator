@@ -63,8 +63,10 @@ export class PlayerEntryComponent {
   }
 
   hasParticipants(): boolean {
-    return this.participants.filter(x => x.isParticipate).length > 0;
+    return this.participants.filter(x => x.isParticipate).length > 1;
   }
+
+
 
   goToScoreEntry() {
     this.gameService.setParticipants(

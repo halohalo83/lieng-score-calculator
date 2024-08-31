@@ -124,8 +124,23 @@ export class ScoreEntryComponent {
     return chicken * (this.players.length - 1);
   }
 
+  checkChickenValidation() {
+    var winnerChicken = this.players.filter(x => x.isWinner).reduce((acc, x) => acc + x.score, 0);
+    var loserChicken = this.players.filter(x => !x.isWinner).reduce((acc, x) => acc + x.score, 0);
+    return winnerChicken === loserChicken;
+  }
+
   finishRound() {
-    this.isRoundFinished = true;
+    if(!this.checkChickenValidation()) {
+      this.modal.error({
+        nzTitle: 'Gà đéo khớp',
+        nzContent: 'Vui lòng kiểm tra lại',
+      });
+      return;
+    }
+    else {
+      this.isRoundFinished = true;
+    }
   }
 
   finishGame() {

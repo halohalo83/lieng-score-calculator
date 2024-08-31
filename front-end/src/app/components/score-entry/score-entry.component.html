@@ -9,16 +9,16 @@
   >
     <thead>
       <tr>
-        <th nzAlign="center" [nzWidth]="'100px'">Tên</th>
         <th nzAlign="center" [nzWidth]="'70px'">+/-</th>
+        <th nzAlign="center" [nzWidth]="'100px'">Tên</th>
         <th nzAlign="center" [nzWidth]="'110px'">Ăn</th>
         <th nzAlign="center" [nzWidth]="'100px'">Gà</th>
       </tr>
     </thead>
     <tbody>
       <tr *ngFor="let data of basicTable.data">
-        <td>{{ data.name }}</td>
         <td><app-flip-card [disabled]="isRoundFinished" [(ngModel)]="data.isPositive"></app-flip-card></td>
+        <td>{{ data.name }}</td>
         <td>
           <nz-input-number
             [nzSize]="'large'"
