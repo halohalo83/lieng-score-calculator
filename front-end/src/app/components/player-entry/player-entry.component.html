@@ -1,5 +1,12 @@
 <div class="container">
-  <nz-table class="mb-3" #basicTable [nzData]="participants" [nzFrontPagination]="false" [nzShowPagination]="false" [nzScroll]="{ y: '500px' }">
+  <nz-table
+    class="mb-3"
+    #basicTable
+    [nzData]="participants"
+    [nzFrontPagination]="false"
+    [nzShowPagination]="false"
+    [nzScroll]="{ y: '500px' }"
+  >
     <thead>
       <tr>
         <th [nzWidth]="'250px'">Tên</th>
@@ -8,7 +15,7 @@
     </thead>
     <tbody>
       <tr *ngFor="let data of basicTable.data">
-        <td>{{data.name}}</td>
+        <td>{{ data.name }}</td>
         <td><nz-switch [(ngModel)]="data.isParticipate"></nz-switch></td>
       </tr>
     </tbody>
@@ -32,10 +39,18 @@
         nz-button
         nzType="primary"
         (click)="goToScoreEntry()"
+        [disabled]="!hasParticipants()"
       >
         Tiếp tục
       </button>
     </nz-col>
   </nz-row>
 </div>
-<ngx-spinner bdColor = "rgba(0, 0, 0, 0.8)" size = "medium" color = "#fff" type = "ball-scale-multiple" [fullScreen] = "true"><p style="color: white" > Đang nấu gà... </p></ngx-spinner>
+<ngx-spinner
+  bdColor="rgba(0, 0, 0, 0.8)"
+  size="medium"
+  color="#fff"
+  type="ball-scale-multiple"
+  [fullScreen]="true"
+  ><p style="color: white">Đang nấu gà...</p></ngx-spinner
+>

@@ -40,8 +40,8 @@ app.get("/oauth2callback", async (req, res) => {
 app.get("/api/check-auth", async (req, res) => {
   try {
     const auth = await authorize();
-    console.log(auth);
-    res.json({ success: auth?.credentials?.access_token !== undefined });
+    var isExpired = auth.isTokenExpiring();
+    res.json({ success: auth?.credentials?.access_token !== undefined && !isExpired });
   } catch (error) {
     console.error("Error checking auth:", error);
     res.status(500).json({ success: false });

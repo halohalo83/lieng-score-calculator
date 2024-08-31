@@ -22,4 +22,5 @@ export interface PlayerScoreModel {
   name: string;
   isPositive: boolean;
   score: number;
+  isWinner: boolean;
 }

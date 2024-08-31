@@ -1,1 +1,59 @@
-<p>result works!</p>
+<div class="container">
+  <nz-table
+    class="mb-3"
+    #basicTable
+    [nzData]="players"
+    [nzFrontPagination]="false"
+    [nzShowPagination]="false"
+    [nzScroll]="{ y: '500px' }"
+    nzBordered
+  >
+    <thead>
+      <tr>
+        <th nzAlign="center" [nzWidth]="'100px'">Rank</th>
+        <th [nzWidth]="'150px'">Tên</th>
+        <th nzAlign="center" [nzWidth]="'100px'">Gà</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let data of basicTable.data">
+        <td nzAlign="center">{{ data.rank }}</td>
+        <td>{{ data.name }}</td>
+        <td nzAlign="center">{{ data.score }}</td>
+      </tr>
+    </tbody>
+  </nz-table>
+  <nz-row [nzGutter]="16">
+    <nz-col nzSpan="12">
+      <button
+        class="w-100"
+        [nzSize]="'large'"
+        nz-button
+        nzType="default"
+        (click)="back()"
+      >
+        Quay lại
+      </button>
+    </nz-col>
+    <nz-col nzSpan="12">
+      <button
+        class="w-100"
+        [nzSize]="'large'"
+        nz-button
+        nzType="primary"
+        (click)="refresh()"
+      >
+        Làm mới
+      </button>
+    </nz-col>
+  </nz-row>
+</div>
+
+<ngx-spinner
+  bdColor="rgba(0, 0, 0, 0.8)"
+  size="medium"
+  color="#fff"
+  type="ball-scale-multiple"
+  [fullScreen]="true"
+  ><p style="color: white">Đang nấu gà...</p></ngx-spinner
+>

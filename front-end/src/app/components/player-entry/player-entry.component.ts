@@ -24,7 +24,7 @@ import { GameService } from '../../game-service.service';
     NzGridModule,
     NzTableModule,
     NzSwitchModule,
-    NgxSpinnerModule
+    NgxSpinnerModule,
   ],
   templateUrl: './player-entry.component.html',
   styleUrl: './player-entry.component.scss',
@@ -62,11 +62,14 @@ export class PlayerEntryComponent {
     }
   }
 
+  hasParticipants(): boolean {
+    return this.participants.filter(x => x.isParticipate).length > 0;
+  }
+
   goToScoreEntry() {
-    const selectedPlayers = this.participants.filter(
-      (player) => player.isParticipate
+    this.gameService.setParticipants(
+      this.participants.filter((x) => x.isParticipate)
     );
-    this.gameService.setParticipants(selectedPlayers);
     this.router.navigate(['/score-entry']);
   }
 

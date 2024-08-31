@@ -12,6 +12,7 @@ import { FlipCardComponent } from '../flip-card/flip-card.component';
 import { PlayerScoreModel } from '../../models/player.model';
 import { ApiService } from '../../api.service';
 import { NzModalModule, NzModalService } from 'ng-zorro-antd/modal';
+import { NzSwitchModule } from 'ng-zorro-antd/switch';
 
 @Component({
   selector: 'app-score-entry',
@@ -26,13 +27,15 @@ import { NzModalModule, NzModalService } from 'ng-zorro-antd/modal';
     NzGridModule,
     FlipCardComponent,
     NzModalModule,
+    NzSwitchModule,
   ],
   templateUrl: './score-entry.component.html',
   styleUrl: './score-entry.component.scss',
 })
 export class ScoreEntryComponent {
   players: PlayerScoreModel[] = [];
-
+  haveWinner: boolean = false;
+  isRoundFinished = false;
   constructor(
     private router: Router,
     private gameService: GameService,
@@ -52,6 +55,7 @@ export class ScoreEntryComponent {
           name: player.name,
           isPositive: false,
           score: this.gameService.getInitialScore(),
+          isWinner: false,
         } as PlayerScoreModel)
     );
   }
@@ -64,14 +68,64 @@ export class ScoreEntryComponent {
   }
 
   nextRound() {
-    // this.players = this.players.map((player) => ({
-    //   ...player,
-    //   isPositive: false,
-    //   score: this.gameService.getInitialScore(),
-    // }));
+    this.clear();
+  }
 
-    console.log(this.players, 'players');
+  clear() {
+    this.players = this.players.map((player) => ({
+      ...player,
+      isPositive: false,
+      isWinner: false,
+      score: this.gameService.getInitialScore(),
+    }));
+    this.haveWinner = false;
+    this.isRoundFinished = false;
+  }
 
+  deleteRound() {
+    this.clear();
+  }
+
+  chooseWinner(player: PlayerScoreModel) {
+    if (player.isWinner) {
+      this.modal.confirm({
+        nzTitle: `${player.name} ăn gà ?`,
+        nzOnOk: () => this.setWinner(player.id),
+        nzOkText: 'Đúng vậy',
+        nzOnCancel: () => {
+          this.setWinner(0);
+        },
+        nzCancelText: 'Đéo',
+      });
+    } else {
+      this.setWinner(0);
+    }
+  }
+
+  setWinner(playerId: number) {
+    this.players = this.players.map((player) => ({
+      ...player,
+      isPositive: player.id === playerId,
+      score:
+        player.id === playerId
+          ? this.getSumChicken()
+          : this.gameService.getInitialScore(),
+      isWinner: player.id === playerId,
+    }));
+    if (playerId === 0) {
+      this.haveWinner = false;
+    } else {
+      this.haveWinner = true;
+    }
+  }
+
+  getSumChicken() {
+    const chicken = this.gameService.getInitialScore();
+    return chicken * (this.players.length - 1);
+  }
+
+  finishRound() {
+    this.isRoundFinished = true;
   }
 
   finishGame() {

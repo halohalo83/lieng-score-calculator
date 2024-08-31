@@ -18,7 +18,7 @@
     <tbody>
       <tr *ngFor="let data of basicTable.data">
         <td>{{ data.name }}</td>
-        <td><app-flip-card [(ngModel)]="data.isPositive"></app-flip-card></td>
+        <td><app-flip-card [disabled]="isRoundFinished" [(ngModel)]="data.isPositive"></app-flip-card></td>
         <td>
           <nz-input-number
             [nzSize]="'large'"
@@ -27,13 +27,39 @@
             inputmode="numeric"
             [(ngModel)]="data.score"
             nzPlaceHolder="Bú"
+            [nzDisabled]="isRoundFinished"
           ></nz-input-number>
         </td>
-        <td nzAlign="center"><img src="/assets/img/egg.jpg" width="40px"></td>
+        <td nzAlign="center"><nz-switch [disabled]="(haveWinner && !data.isWinner) || isRoundFinished" [(ngModel)]="data.isWinner" (ngModelChange)="chooseWinner(data)"></nz-switch></td>
       </tr>
     </tbody>
   </nz-table>
   <nz-row [nzGutter]="[16, 16]">
+    <nz-col nzSpan="24">
+      <button
+        class="w-100"
+        [nzSize]="'large'"
+        nz-button
+        nzType="primary"
+        (click)="finishRound()"
+        [disabled]="isRoundFinished"
+      >
+        Xong ván
+      </button>
+    </nz-col>
+    <nz-col nzSpan="24">
+      <button
+        class="w-100"
+        [nzSize]="'large'"
+        nz-button
+        nzDanger
+        nzType="primary"
+        (click)="deleteRound()"
+        [disabled]="!isRoundFinished"
+      >
+        Xóa ván này
+      </button>
+    </nz-col>
     <nz-col nzSpan="12">
       <button
         class="w-100"
@@ -52,6 +78,7 @@
         nz-button
         nzType="primary"
         (click)="nextRound()"
+        [disabled]="!isRoundFinished"
       >
         Nốt ván
       </button>
@@ -64,6 +91,7 @@
         nzDanger
         nzType="primary"
         (click)="finishGame()"
+        [disabled]="!isRoundFinished"
       >
         Đứng dậy đi về
       </button>

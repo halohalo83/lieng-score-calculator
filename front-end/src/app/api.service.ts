@@ -24,7 +24,6 @@ export class ApiService {
       const response = await axios.get(`${this.apiUrl}/check-auth`);
       return response.data;
     } catch (error) {
-      alert(`Error checking auth: ${error}`);
       console.error('Error checking auth:', error);
     } finally {
       this.spinner.hide();

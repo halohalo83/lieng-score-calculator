@@ -17,6 +17,7 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 export class FlipCardComponent implements ControlValueAccessor {
   isFlipped = false;
   private _value = true;
+  private _disabled: boolean = false;
 
   onChange: any = () => {};
   onTouched: any = () => {};
@@ -33,6 +34,9 @@ export class FlipCardComponent implements ControlValueAccessor {
   }
 
   flipCard() {
+   if (this._disabled) {
+      return; // Prevent flipping if the component is disabled
+    }
     this.value = !this.value;
   }
 
@@ -50,6 +54,6 @@ export class FlipCardComponent implements ControlValueAccessor {
   }
 
   setDisabledState?(isDisabled: boolean): void {
-    // Handle disabled state if needed
+    this._disabled = isDisabled;
   }
 }
