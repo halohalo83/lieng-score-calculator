@@ -21,16 +21,18 @@ async function authorize() {
     oAuth2Client.setCredentials(JSON.parse(fs.readFileSync(TOKEN_PATH)));
     return oAuth2Client;
   } else {
-    // Get new token and save it
-    const authUrl = oAuth2Client.generateAuthUrl({
-      access_type: 'offline',
-      scope: ['https://www.googleapis.com/auth/spreadsheets'],
-    });
-    // console.log('Authorize this app by visiting this url:', authUrl);
-    alert('Authorize this app by visiting this url:', authUrl);
-
+    console.log('Authorize this app by visiting this url:', await visitUrlToAuthorize());
     return oAuth2Client;
   }
+}
+
+async function visitUrlToAuthorize() {
+  const oAuth2Client = await getOAuth2Client();
+  const authUrl = oAuth2Client.generateAuthUrl({
+    access_type: 'offline',
+    scope: ['https://www.googleapis.com/auth/spreadsheets'],
+  });
+  return authUrl;
 }
 
 async function getAndSaveToken(token) {
@@ -40,4 +42,4 @@ async function getAndSaveToken(token) {
   console.log('Token stored to', TOKEN_PATH);
 }
 
-module.exports = { authorize, getOAuth2Client, getAndSaveToken};
+module.exports = { authorize, visitUrlToAuthorize, getOAuth2Client, getAndSaveToken};

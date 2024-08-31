@@ -31,6 +31,19 @@ export class ApiService {
     }
   }
 
+  public async getAuthUrl() {
+    this.spinner.show();
+    try {
+      const response = await axios.get(`${this.apiUrl}/get-auth-url`);
+      return response.data;
+    } catch (error) {
+      console.error('Error getting auth url:', error);
+      throw error;
+    } finally {
+      this.spinner.hide();
+    }
+  }
+
   public async getAllSheets() {
     this.spinner.show();
     try {

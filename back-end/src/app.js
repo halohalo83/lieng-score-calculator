@@ -5,6 +5,7 @@ const {
   authorize,
   getOAuth2Client,
   getAndSaveToken,
+  visitUrlToAuthorize
 } = require("./config/authorize");
 const app = express();
 app.use(cors());
@@ -39,10 +40,22 @@ app.get("/oauth2callback", async (req, res) => {
 app.get("/api/check-auth", async (req, res) => {
   try {
     const auth = await authorize();
-    res.json({ success: auth.credentials !== null });
+    console.log(auth);
+    res.json({ success: auth?.credentials?.access_token !== undefined });
   } catch (error) {
     console.error("Error checking auth:", error);
     res.status(500).json({ success: false });
+  }
+});
+
+// Get auth url route
+app.get("/api/get-auth-url", async (req, res) => {
+  try {
+    const authUrl = await visitUrlToAuthorize();
+    res.json({ success: true, authUrl });
+  } catch (error) {
+    console.error("Error getting auth url:", error);
+    res.status(500).json({ success: false, error: "Failed to get auth url" });
   }
 });
 
