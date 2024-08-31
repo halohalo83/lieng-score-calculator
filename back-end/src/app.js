@@ -167,34 +167,9 @@ app.post("/api/update-sheet", async (req, res) => {
   
   try {
     const auth = await authorize();
-    const sheets = google.sheets({ version: "v4", auth });
+    await updateSheet(auth, sheetId, players);
 
-    const names = players.map((player) => player.name);
-
-    const range = `${await getSheetNameById(auth, sheetId)}!A1`;
-
-    const sheetData = await sheets.spreadsheets.values.get({
-      spreadsheetId,
-      range,
-    });
-
-    if (sheetData.data.values) {
-      await sheets.spreadsheets.values.clear({
-        spreadsheetId,
-        range,
-      });
-    }
-
-    const response = sheets.spreadsheets.values.update({
-      spreadsheetId,
-      range,
-      valueInputOption: "USER_ENTERED",
-      resource: {
-        values: [names],
-      },
-    });
-
-    res.json({ success: true, response });
+    res.json({ success: true });
   } catch (error) {
     console.error("Error updating sheet:", error);
     res.status(500).json({ success: false, error: "Failed to update sheet" });
@@ -279,6 +254,77 @@ async function createSheet(auth, spreadsheetId, today) {
   });
 
   return sheetName;
+}
+
+async function updateSheet(auth, sheetId, players) {
+  const sheets = google.sheets({ version: "v4", auth });
+
+  // Fill names to the first row 
+  const names = players.map((player) => player.name);
+
+  const range = `${await getSheetNameById(auth, sheetId)}!A1`;
+
+  const sheetData = await sheets.spreadsheets.values.get({
+    spreadsheetId,
+    range,
+  });
+
+  if (sheetData.data.values) {
+    await sheets.spreadsheets.values.clear({
+      spreadsheetId,
+      range,
+    });
+  }
+
+  sheets.spreadsheets.values.update({
+    spreadsheetId,
+    range,
+    valueInputOption: "USER_ENTERED",
+    resource: {
+      values: [names],
+    },
+  });
+
+  // Fill sum function 
+  const numColumns = names.length;
+
+  const requests = [];
+  for (let col = 0; col < numColumns; col++) {
+    const colLetter = String.fromCharCode(65 + col); // Convert column index to letter (A, B, C, ...)
+    const sumFormula = `=SUM(${colLetter}3:${colLetter})`;
+
+    requests.push({
+      updateCells: {
+        range: {
+          sheetId,
+          startRowIndex: 1,
+          endRowIndex: 2,
+          startColumnIndex: col,
+          endColumnIndex: col + 1,
+        },
+        rows: [
+          {
+            values: [
+              {
+                userEnteredValue: {
+                  formulaValue: sumFormula,
+                },
+              },
+            ],
+          },
+        ],
+        fields: 'userEnteredValue',
+      },
+    });
+  }
+
+  // Batch update the sheet with the sum formulas
+  await sheets.spreadsheets.batchUpdate({
+    spreadsheetId,
+    resource: {
+      requests,
+    },
+  });
 }
 
 async function deleteSheet(auth, spreadsheetId, sheetId) {
