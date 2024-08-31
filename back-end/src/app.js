@@ -149,26 +149,6 @@ app.delete("/api/delete-sheet/:sheetId", async (req, res) => {
   }
 });
 
-// Check sheet have data
-app.get("/api/check-data/:sheetId", async (req, res) => {
-  const { sheetId } = req.params;
-  try {
-    const auth = await authorize();
-    const sheets = google.sheets({ version: "v4", auth });
-    console.log(sheets, "sheetData");
-
-    const sheetData = await sheets.spreadsheets.values.get({
-      spreadsheetId,
-      range: `${sheetId}!A1:A1`,
-    });
-
-    res.json({ success: true, hasData: sheetData.data.values.length > 0 });
-  } catch (error) {
-    console.error("Error checking sheet:", error);
-    res.status(500).json({ success: false, error: "Failed to check sheet" });
-  }
-});
-
 async function createSheet(auth, spreadsheetId, today) {
   const sheets = google.sheets({ version: "v4", auth });
 
@@ -200,6 +180,53 @@ async function createSheet(auth, spreadsheetId, today) {
 
   return sheetName;
 }
+
+// save score to sheet route
+app.post("/api/save-score", async (req, res) => {
+  // req.body will have sheetId, list of playerModel
+  const { sheetId, players } = req.body;
+  try {
+    const auth = await authorize();
+    const sheets = google.sheets({ version: "v4", auth });
+
+    // Save score to rankings sheet
+    const sheetData = await sheets.spreadsheets.values.get({
+      spreadsheetId,
+      range: `BXH!A2:C`,
+    });
+
+    const playerScores = sheetData.data.values.map(
+      ([id, name, score]) => new PlayerModel(id, name, score)
+    );
+
+    const playerScoresMap = playerScores.reduce((acc, player) => {
+      acc[player.id] = player;
+      return acc;
+    }, {});
+
+    const rankingValues = players.map((player) => {
+      const playerScore = playerScoresMap[player.id];
+      if (playerScore) {
+        playerScore.score = player.score;
+      }
+      return [player.id, player.name, player.score];
+    });
+
+    await sheets.spreadsheets.values.update({
+      spreadsheetId,
+      range: `BXH!A2:C`,
+      valueInputOption: "USER_ENTERED",
+      resource: {
+        rankingValues,
+      },
+    });
+
+    res.json({ success: true });
+  } catch (error) {
+    console.error("Error saving score:", error);
+    res.status(500).json({ success: false, error: "Failed to save score" });
+  }
+});
 
 async function deleteSheet(auth, spreadsheetId, sheetId) {
   const sheets = google.sheets({ version: "v4", auth });
