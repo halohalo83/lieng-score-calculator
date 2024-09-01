@@ -211,6 +211,82 @@ app.post("/api/save-score", async (req, res) => {
   }
 });
 
+// fill score round to sheet route
+app.post("/api/fill-round-scores", async (req, res) => {
+  const { sheetId, players, initialScore } = req.body;
+
+  try {
+    const auth = await authorize();
+    const sheets = google.sheets({ version: "v4", auth });
+
+    // find the last row of the sheet
+    const sheetData = await sheets.spreadsheets.values.get({
+      spreadsheetId,
+      range: `${await getSheetNameById(auth, sheetId)}!A1:Z`,
+    });
+
+    const insertRowIndex = sheetData.data.values.length;
+
+    const range = {
+      startRowIndex: insertRowIndex,
+      endRowIndex: insertRowIndex + 1,
+      startColumnIndex: 0,
+      endColumnIndex: players.length,
+    };
+
+    await applyConditionalFormatting(auth, sheetId, initialScore, range);
+
+    const values = players.map((player) => player.score);
+
+    await sheets.spreadsheets.values.update({
+      spreadsheetId,
+      range: `${await getSheetNameById(auth, sheetId)}!A${insertRowIndex + 1}`,
+      valueInputOption: "USER_ENTERED",
+      resource: {
+        values: [values],
+      },
+    });
+
+    res.json({ success: true });
+  } catch (error) {
+    console.error("Error filling score round:", error);
+    res
+      .status(500)
+      .json({ success: false, error: "Failed to fill score round" });
+  }
+});
+
+// delete the last round route
+app.delete("/api/delete-last-round/:sheetId", async (req, res) => {
+  const { sheetId } = req.params;
+  try {
+    const auth = await authorize();
+    const sheets = google.sheets({ version: "v4", auth });
+
+    const sheetData = await sheets.spreadsheets.values.get({
+      spreadsheetId,
+      range: `${await getSheetNameById(auth, sheetId)}!A1:Z`,
+    });
+
+    const lastRowIndex = sheetData.data.values.length;
+
+    await sheets.spreadsheets.values.clear({
+      spreadsheetId,
+      range: `${await getSheetNameById(auth, sheetId)}!A${lastRowIndex}:Z`,
+    });
+
+    // clear all row A3
+
+
+    res.json({ success: true });
+  } catch (error) {
+    console.error("Error deleting last round:", error);
+    res
+      .status(500)
+      .json({ success: false, error: "Failed to delete last round" });
+  }
+});
+
 async function createSheet(auth, spreadsheetId) {
   const today = moment().format("DD/MM/YYYY");
 
@@ -313,7 +389,7 @@ async function configSelectedSheet(auth, sheetId, players, initialScore) {
             red: 1,
             green: 1,
             blue: 0,
-          },
+          }
         },
       },
       fields: "userEnteredFormat.backgroundColor",
@@ -428,6 +504,7 @@ async function getSheetNameById(auth, sheetId) {
 }
 
 async function applyConditionalFormatting(auth, sheetId, initialScore, range) {
+  const sheets = google.sheets({ version: "v4", auth });
   const requests = [
     {
       addConditionalFormatRule: {
@@ -444,14 +521,10 @@ async function applyConditionalFormatting(auth, sheetId, initialScore, range) {
           booleanRule: {
             condition: {
               type: "NUMBER_GREATER",
-              values: [
-                {
-                  userEnteredValue: initialScore,
-                },
-              ],
+              values: [{ userEnteredValue: "0" }],
             },
             format: {
-              backgroundColor: { red: 183, green: 255, blue: 205 },
+              backgroundColor: { red: 0, green: 1, blue: 0 },
             },
           },
         },
@@ -475,12 +548,37 @@ async function applyConditionalFormatting(auth, sheetId, initialScore, range) {
               type: "NUMBER_LESS",
               values: [
                 {
-                  userEnteredValue: 0,
+                  userEnteredValue: "0",
                 },
               ],
             },
             format: {
-              backgroundColor: { red: 244, green: 199, blue: 195 },
+              backgroundColor: { red: 1, green: 0, blue: 0 },
+            },
+          },
+        },
+      },
+    },
+
+    {
+      addConditionalFormatRule: {
+        rule: {
+          ranges: [
+            {
+              sheetId,
+              startRowIndex: range.startRowIndex,
+              endRowIndex: range.endRowIndex,
+              startColumnIndex: range.startColumnIndex,
+              endColumnIndex: range.endColumnIndex,
+            },
+          ],
+          booleanRule: {
+            condition: {
+              type: "NUMBER_EQ",
+              values: [{ userEnteredValue: (-initialScore).toString() }],
+            },
+            format: {
+              backgroundColor: { red: 1, green: 1, blue: 1 },
             },
           },
         },

@@ -2,7 +2,7 @@ export interface PlayerModel {
   id: number;
   name: string;
 }
-export interface PlayerScoreModel {
+export interface PlayerScoreViewModel {
   id: number;
   name: string;
   score: number;
@@ -22,6 +22,12 @@ export interface ParticipantModel {
 }
 
 export interface PlayerScoreModel {
+  id: number;
+  name: string;
+  score: number;
+}
+
+export interface PlayerScoreViewModel {
   id: number;
   name: string;
   isPositive: boolean;

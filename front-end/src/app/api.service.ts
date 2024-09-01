@@ -3,7 +3,12 @@ import { Injectable } from '@angular/core';
 import axios from 'axios';
 import { environment } from '../environments/environment';
 import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
-import { ParticipantModel, PlayerModel } from './models/player.model';
+import {
+  ParticipantModel,
+  PlayerModel,
+  PlayerScoreModel,
+  PlayerScoreViewModel,
+} from './models/player.model';
 import { GameService } from './game-service.service';
 
 @Injectable({
@@ -144,6 +149,38 @@ export class ApiService {
       return response.data;
     } catch (error) {
       console.error('Error getting rankings:', error);
+      throw error;
+    } finally {
+      this.spinner.hide();
+    }
+  }
+
+  public async fillRoundScores(players: PlayerScoreModel[]) {
+    this.spinner.show();
+    try {
+      const response = await axios.post(`${this.apiUrl}/fill-round-scores`, {
+        players,
+        initialScore: this.gameService.getInitialScore(),
+        sheetId: this.gameService.getSelectedSheet(),
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error filling round scores:', error);
+      throw error;
+    } finally {
+      this.spinner.hide();
+    }
+  }
+
+  public async deleteTheLastRound() {
+    this.spinner.show();
+    try {
+      const response = await axios.delete(
+        `${this.apiUrl}/delete-last-round/${this.gameService.getSelectedSheet()}`
+      );
+      return response.data;
+    } catch (error) {
+      console.error('Error deleting the last round:', error);
       throw error;
     } finally {
       this.spinner.hide();

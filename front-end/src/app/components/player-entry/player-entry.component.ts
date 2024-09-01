@@ -12,9 +12,10 @@ import { ApiService } from '../../api.service';
 import {
   ParticipantModel,
   PlayerModel,
-  PlayerScoreModel,
+  PlayerScoreViewModel,
 } from '../../models/player.model';
 import { GameService } from '../../game-service.service';
+import { NzModalModule, NzModalService } from 'ng-zorro-antd/modal';
 
 @Component({
   selector: 'app-player-entry',
@@ -29,6 +30,7 @@ import { GameService } from '../../game-service.service';
     NzTableModule,
     NzSwitchModule,
     NgxSpinnerModule,
+    NzModalModule,
   ],
   templateUrl: './player-entry.component.html',
   styleUrl: './player-entry.component.scss',
@@ -38,7 +40,8 @@ export class PlayerEntryComponent {
   constructor(
     private router: Router,
     private apiService: ApiService,
-    private gameService: GameService
+    private gameService: GameService,
+    private modal: NzModalService
   ) {}
 
   ngOnInit(): void {
@@ -51,7 +54,7 @@ export class PlayerEntryComponent {
         var participantsFromGameService = this.gameService.getParticipants();
         if (participantsFromGameService.length > 0) {
           this.participants = response.players.map(
-            (player: PlayerScoreModel) => {
+            (player: PlayerScoreViewModel) => {
               return {
                 id: player.id,
                 name: player.name,
@@ -63,7 +66,7 @@ export class PlayerEntryComponent {
           );
         } else {
           this.participants = response.players.map(
-            (player: PlayerScoreModel) => {
+            (player: PlayerScoreViewModel) => {
               return {
                 id: player.id,
                 name: player.name,
@@ -88,12 +91,20 @@ export class PlayerEntryComponent {
   }
 
   goToScoreEntry() {
-    this.gameService.setParticipants(
-      this.participants.filter((x) => x.isParticipate)
-    );
+    this.modal.confirm({
+      nzTitle: 'Dữ liệu sẽ bị xóa hết trong sheet?',
+      nzContent: 'Nếu bắt đầu, dữ liệu cũ sẽ bị xóa hết trong sheet đã chọn',
+      nzOnOk: () => {
+        this.gameService.setParticipants(
+          this.participants.filter((x) => x.isParticipate)
+        );
 
-    this.apiService.configSelectedSheet();
-    this.router.navigate(['/score-entry']);
+        this.apiService.configSelectedSheet();
+        this.router.navigate(['/score-entry']);
+      },
+      nzOkText: 'Quất luôn',
+      nzCancelText: 'Đéo',
+    });
   }
 
   back() {

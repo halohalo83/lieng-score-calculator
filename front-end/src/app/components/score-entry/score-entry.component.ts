@@ -9,7 +9,10 @@ import { NzGridModule } from 'ng-zorro-antd/grid';
 import { NzTableModule } from 'ng-zorro-antd/table';
 import { NgxSpinnerModule } from 'ngx-spinner';
 import { FlipCardComponent } from '../flip-card/flip-card.component';
-import { PlayerScoreModel } from '../../models/player.model';
+import {
+  PlayerScoreModel,
+  PlayerScoreViewModel,
+} from '../../models/player.model';
 import { ApiService } from '../../api.service';
 import { NzModalModule, NzModalService } from 'ng-zorro-antd/modal';
 import { NzSwitchModule } from 'ng-zorro-antd/switch';
@@ -33,7 +36,7 @@ import { NzSwitchModule } from 'ng-zorro-antd/switch';
   styleUrl: './score-entry.component.scss',
 })
 export class ScoreEntryComponent {
-  players: PlayerScoreModel[] = [];
+  players: PlayerScoreViewModel[] = [];
   haveWinner: boolean = false;
   isRoundFinished = false;
   constructor(
@@ -56,7 +59,7 @@ export class ScoreEntryComponent {
           isPositive: false,
           score: this.gameService.getInitialScore(),
           isWinner: false,
-        } as PlayerScoreModel)
+        } as PlayerScoreViewModel)
     );
   }
 
@@ -83,10 +86,22 @@ export class ScoreEntryComponent {
   }
 
   deleteRound() {
-    this.clear();
+    this.modal.confirm({
+      nzTitle: 'Xóa vòng này ?',
+      nzOnOk: () => {
+        this.apiService.deleteTheLastRound().then((response) => {
+          if (response.success) {
+            this.clear();
+          }
+        });
+      },
+      nzOkText: 'Xóa',
+      nzCancelText: 'Đéo',
+    });
+
   }
 
-  chooseWinner(player: PlayerScoreModel) {
+  chooseWinner(player: PlayerScoreViewModel) {
     if (player.isWinner) {
       this.modal.confirm({
         nzTitle: `${player.name} ăn gà ?`,
@@ -125,21 +140,37 @@ export class ScoreEntryComponent {
   }
 
   checkChickenValidation() {
-    var winnerChicken = this.players.filter(x => x.isWinner).reduce((acc, x) => acc + x.score, 0);
-    var loserChicken = this.players.filter(x => !x.isWinner).reduce((acc, x) => acc + x.score, 0);
+    var winnerChicken = this.players
+      .filter((x) => x.isWinner)
+      .reduce((acc, x) => acc + x.score, 0);
+    var loserChicken = this.players
+      .filter((x) => !x.isWinner)
+      .reduce((acc, x) => acc + x.score, 0);
     return winnerChicken === loserChicken;
   }
 
   finishRound() {
-    if(!this.checkChickenValidation()) {
+    if (!this.checkChickenValidation()) {
       this.modal.error({
         nzTitle: 'Gà đéo khớp',
         nzContent: 'Vui lòng kiểm tra lại',
       });
       return;
-    }
-    else {
-      this.isRoundFinished = true;
+    } else {
+      const playerScores = this.players.map(
+        (player) =>
+          ({
+            id: player.id,
+            name: player.name,
+            score: player.isPositive ? player.score : -player.score,
+          } as PlayerScoreModel)
+      );
+
+      this.apiService.fillRoundScores(playerScores).then((response) => {
+        if (response.success) {
+          this.isRoundFinished = true;
+        }
+      });
     }
   }
 
