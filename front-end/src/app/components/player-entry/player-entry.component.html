@@ -20,7 +20,7 @@
       </tr>
     </tbody>
   </nz-table>
-  <nz-row [nzGutter]="16">
+  <nz-row [nzGutter]="[16, 16]">
     <nz-col nzSpan="8">
       <button
         class="w-100"
@@ -44,6 +44,18 @@
       </button>
     </nz-col>
     <nz-col nzSpan="8">
+      <button
+        class="w-100"
+        [nzSize]="'large'"
+        nz-button
+        nzType="primary"
+        (click)="save()"
+        [disabled]="gameIsRunning"
+      >
+        Lưu lại
+      </button>
+    </nz-col>
+    <nz-col nzSpan="24">
       <button
         class="w-100"
         [nzSize]="'large'"

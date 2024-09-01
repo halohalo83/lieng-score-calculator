@@ -42,6 +42,7 @@ FormsModule;
   styleUrl: './home.component.scss',
 })
 export class HomeComponent {
+  isAuth: boolean = false;
   form!: FormGroup;
   sheets: SheetModel[] = [];
   constructor(
@@ -67,6 +68,7 @@ export class HomeComponent {
   async checkAuth() {
     const response = await this.apiService.checkAuth();
     if (response.success) {
+      this.isAuth = true;
       this.getAllSheets();
     }
   }

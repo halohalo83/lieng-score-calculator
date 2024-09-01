@@ -33,12 +33,12 @@
         </nz-select>
       </nz-col>
       <nz-col nzSpan="3">
-        <button nz-button class="w-100" nzDanger (click)="deleteSheet()">
+        <button nz-button class="w-100" nzDanger (click)="deleteSheet()" [disabled]="!isAuth">
           <span nzDanger nz-icon nzType="delete"></span>
         </button>
       </nz-col>
       <nz-col nzSpan="9">
-        <button class="w-100" nz-button (click)="createSheet()">
+        <button class="w-100" nz-button (click)="createSheet()" [disabled]="!isAuth">
           Tạo Sheet mới
         </button>
       </nz-col>

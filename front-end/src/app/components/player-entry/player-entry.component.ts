@@ -93,7 +93,6 @@ export class PlayerEntryComponent {
       nzTitle: 'Dữ liệu sẽ bị xóa hết trong sheet?',
       nzContent: 'Nếu chọn lại, dữ liệu cũ sẽ bị xóa hết trong sheet đã chọn',
       nzOnOk: () => {
-
         this.participants = this.participants.map((x) => {
           x.isParticipate = false;
           return x;
@@ -106,6 +105,12 @@ export class PlayerEntryComponent {
     });
   }
 
+  save() {
+    this.gameService.setGameIsRunning(true);
+    this.gameIsRunning = true;
+    this.apiService.configSelectedSheet();
+  }
+
   hasParticipants(): boolean {
     return this.participants.filter((x) => x.isParticipate).length > 1;
   }
@@ -114,7 +119,6 @@ export class PlayerEntryComponent {
     this.gameService.setParticipants(
       this.participants.filter((x) => x.isParticipate)
     );
-    this.apiService.configSelectedSheet();
     this.gameService.setGameIsRunning(true);
     this.router.navigate(['/score-entry']);
   }

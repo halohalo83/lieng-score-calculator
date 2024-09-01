@@ -7,6 +7,8 @@ import { NzTableModule } from 'ng-zorro-antd/table';
 import { NgxSpinnerModule } from 'ngx-spinner';
 import { ApiService } from '../../api.service';
 import { PlayerRanking } from '../../models/player.model';
+import { GameService } from '../../game-service.service';
+import { indexOf } from 'lodash';
 
 @Component({
   selector: 'app-result',
@@ -19,10 +21,16 @@ import { PlayerRanking } from '../../models/player.model';
     NgFor,
   ],
   templateUrl: './result.component.html',
-  styleUrl: './result.component.scss'
+  styleUrl: './result.component.scss',
 })
 export class ResultComponent {
-  constructor(private router: Router, private apiService: ApiService) {
+  isAuth: boolean = false;
+  roundScores: number[] = [];
+  constructor(
+    private router: Router,
+    private apiService: ApiService,
+    private gameService: GameService
+  ) {
     this.checkAuth();
   }
 
@@ -31,15 +39,38 @@ export class ResultComponent {
   async checkAuth() {
     const response = await this.apiService.checkAuth();
     if (response.success) {
-      this.getRankings();
+      this.isAuth = true;
+      this.getRoundScores();
     }
   }
-  getRankings() {
-    this.apiService.getRankings().then((response) => {
+
+  getRoundScores() {
+    this.apiService.getRoundScores().then((response) => {
       if (response.success) {
-        this.players = response.rankings;
+        this.roundScores = response.scores;
+        this.getPlayers();
       }
     });
+  }
+
+  getPlayers() {
+    this.players = this.gameService.getParticipants().map((player, index) => {
+      return {
+        rank: this.getRanking(this.roundScores[index]),
+        id: player.id,
+        name: player.name,
+        score: this.roundScores[index],
+      } as PlayerRanking;
+    });
+
+    this.players.sort((a, b) => a.rank - b.rank);
+  }
+
+  getRanking(score: Number) {
+    // arrange the scores in descending order
+    let scores = this.roundScores.slice().sort((a, b) => b - a);
+
+    return indexOf(scores, score) + 1;
   }
 
   back() {
@@ -47,6 +78,6 @@ export class ResultComponent {
   }
 
   refresh() {
-    this.getRankings();
+    this.getRoundScores();
   }
 }

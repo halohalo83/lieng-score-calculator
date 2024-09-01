@@ -41,6 +41,7 @@
         [nzSize]="'large'"
         nz-button
         nzType="primary"
+        [disabled]="!isAuth"
         (click)="refresh()"
       >
         Làm mới

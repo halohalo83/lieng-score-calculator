@@ -176,11 +176,28 @@ export class ApiService {
     this.spinner.show();
     try {
       const response = await axios.delete(
-        `${this.apiUrl}/delete-last-round/${this.gameService.getSelectedSheet()}`
+        `${
+          this.apiUrl
+        }/delete-last-round/${this.gameService.getSelectedSheet()}`
       );
       return response.data;
     } catch (error) {
       console.error('Error deleting the last round:', error);
+      throw error;
+    } finally {
+      this.spinner.hide();
+    }
+  }
+
+  public async getRoundScores() {
+    this.spinner.show();
+    try {
+      const response = await axios.get(
+        `${this.apiUrl}/get-round-scores/${this.gameService.getSelectedSheet()}`
+      );
+      return response.data;
+    } catch (error) {
+      console.error('Error getting round scores:', error);
       throw error;
     } finally {
       this.spinner.hide();

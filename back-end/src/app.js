@@ -287,6 +287,29 @@ app.delete("/api/delete-last-round/:sheetId", async (req, res) => {
   }
 });
 
+// get round scores route
+app.get("/api/get-round-scores/:sheetId", async (req, res) => {
+  const { sheetId } = req.params;
+  try {
+    const auth = await authorize();
+    const sheets = google.sheets({ version: "v4", auth });
+
+    const sheetData = await sheets.spreadsheets.values.get({
+      spreadsheetId,
+      range: `${await getSheetNameById(auth, sheetId)}!A2:Z`,
+    });
+
+    const scores = sheetData.data.values[0].map((score) => Number(score));
+
+    res.json({ success: true, scores });
+  } catch (error) {
+    console.error("Error getting round scores:", error);
+    res
+      .status(500)
+      .json({ success: false, error: "Failed to get round scores" });
+  }
+});
+
 async function createSheet(auth, spreadsheetId) {
   const today = moment().format("DD/MM/YYYY");
 
