@@ -106,6 +106,7 @@ export class PlayerEntryComponent {
   }
 
   save() {
+    this.gameService.setParticipants(this.participants.filter((x) => x.isParticipate));
     this.gameService.setGameIsRunning(true);
     this.gameIsRunning = true;
     this.apiService.configSelectedSheet();
