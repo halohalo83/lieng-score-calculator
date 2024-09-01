@@ -16,12 +16,12 @@
     <tbody>
       <tr *ngFor="let data of basicTable.data">
         <td>{{ data.name }}</td>
-        <td><nz-switch [(ngModel)]="data.isParticipate"></nz-switch></td>
+        <td><nz-switch [disabled]="gameIsRunning" [(ngModel)]="data.isParticipate"></nz-switch></td>
       </tr>
     </tbody>
   </nz-table>
   <nz-row [nzGutter]="16">
-    <nz-col nzSpan="12">
+    <nz-col nzSpan="8">
       <button
         class="w-100"
         [nzSize]="'large'"
@@ -32,7 +32,18 @@
         Quay lại
       </button>
     </nz-col>
-    <nz-col nzSpan="12">
+    <nz-col nzSpan="8">
+      <button
+        class="w-100"
+        [nzSize]="'large'"
+        nz-button
+        nzType="default"
+        (click)="chooseAgain()"
+      >
+        Chọn lại
+      </button>
+    </nz-col>
+    <nz-col nzSpan="8">
       <button
         class="w-100"
         [nzSize]="'large'"
@@ -41,7 +52,7 @@
         (click)="goToScoreEntry()"
         [disabled]="!hasParticipants()"
       >
-        Tiếp tục
+        Vào game
       </button>
     </nz-col>
   </nz-row>

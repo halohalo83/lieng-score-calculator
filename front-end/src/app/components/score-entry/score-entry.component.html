@@ -28,7 +28,7 @@
             [(ngModel)]="data.score"
             nzPlaceHolder="Bú"
             [nzDisabled]="isRoundFinished"
-            (ngModelChange)="autoCalculate(data)"
+            (ngModelChange)="autoCalculateDebounced(data)"
           ></nz-input-number>
         </td>
         <td nzAlign="center"><nz-switch [disabled]="(haveWinner && !data.isWinner) || isRoundFinished" [(ngModel)]="data.isWinner" (ngModelChange)="chooseWinner(data)"></nz-switch></td>
@@ -43,7 +43,7 @@
         nz-button
         nzType="primary"
         (click)="finishRound()"
-        [disabled]="isRoundFinished"
+        [disabled]="isRoundFinished || !isAuth"
       >
         Xong ván
       </button>

@@ -7,9 +7,19 @@ export class GameService {
   private selectedSheetId: number = 0;
   private initialScore: number = 0;
   private participants: ParticipantModel[] = [];
+  private gameIsRunning: boolean = false;
 
   constructor() {
     this.loadFromLocalStorage();
+  }
+
+  setGameIsRunning(isRunning: boolean): void {
+    this.gameIsRunning = isRunning;
+    this.saveToLocalStorage();
+  }
+
+  getGameIsRunning(): boolean {
+    return this.gameIsRunning;
   }
 
   setInitialScore(score: number): void {
@@ -43,7 +53,8 @@ export class GameService {
     const data = {
       selectedSheetId: this.selectedSheetId,
       initialScore: this.initialScore,
-      participants: this.participants
+      participants: this.participants,
+      gameIsRunning: this.gameIsRunning
     };
     localStorage.setItem('gameServiceData', JSON.stringify(data));
   }
@@ -55,6 +66,7 @@ export class GameService {
       this.selectedSheetId = parsedData.selectedSheetId;
       this.initialScore = parsedData.initialScore;
       this.participants = parsedData.participants;
+      this.gameIsRunning = parsedData.gameIsRunning;
     }
   }
 }

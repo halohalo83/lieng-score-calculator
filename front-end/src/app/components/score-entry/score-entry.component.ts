@@ -16,7 +16,7 @@ import {
 import { ApiService } from '../../api.service';
 import { NzModalModule, NzModalService } from 'ng-zorro-antd/modal';
 import { NzSwitchModule } from 'ng-zorro-antd/switch';
-
+import { debounce } from 'lodash';
 @Component({
   selector: 'app-score-entry',
   standalone: true,
@@ -39,12 +39,14 @@ export class ScoreEntryComponent {
   players: PlayerScoreViewModel[] = [];
   haveWinner: boolean = false;
   isRoundFinished = false;
+  isAuth = false;
   constructor(
     private router: Router,
     private gameService: GameService,
     private apiService: ApiService,
     private modal: NzModalService
-  ) {}
+  ) {
+  }
 
   ngOnInit(): void {
     this.checkAuth();
@@ -66,6 +68,7 @@ export class ScoreEntryComponent {
   async checkAuth() {
     const response = await this.apiService.checkAuth();
     if (response.success) {
+      this.isAuth = true;
       this.getPlayers();
     }
   }
@@ -163,6 +166,10 @@ export class ScoreEntryComponent {
       }));
     }
   }
+
+  autoCalculateDebounced = debounce((data: PlayerScoreViewModel) => {
+    this.autoCalculate(data);
+  }, 1000);
 
   finishRound() {
     if (!this.checkChickenValidation()) {

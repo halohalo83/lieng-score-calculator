@@ -37,6 +37,7 @@ import { NzModalModule, NzModalService } from 'ng-zorro-antd/modal';
 })
 export class PlayerEntryComponent {
   participants: ParticipantModel[] = [];
+  gameIsRunning: boolean = false;
   constructor(
     private router: Router,
     private apiService: ApiService,
@@ -83,7 +84,26 @@ export class PlayerEntryComponent {
     const response = await this.apiService.checkAuth();
     if (response.success) {
       this.getAllPlayers();
+      this.gameIsRunning = this.gameService.getGameIsRunning();
     }
+  }
+
+  chooseAgain() {
+    this.modal.confirm({
+      nzTitle: 'Dữ liệu sẽ bị xóa hết trong sheet?',
+      nzContent: 'Nếu chọn lại, dữ liệu cũ sẽ bị xóa hết trong sheet đã chọn',
+      nzOnOk: () => {
+
+        this.participants = this.participants.map((x) => {
+          x.isParticipate = false;
+          return x;
+        });
+        this.gameService.setGameIsRunning(false);
+        this.gameIsRunning = false;
+      },
+      nzOkText: 'Quất luôn',
+      nzCancelText: 'Đéo',
+    });
   }
 
   hasParticipants(): boolean {
@@ -91,20 +111,12 @@ export class PlayerEntryComponent {
   }
 
   goToScoreEntry() {
-    this.modal.confirm({
-      nzTitle: 'Dữ liệu sẽ bị xóa hết trong sheet?',
-      nzContent: 'Nếu bắt đầu, dữ liệu cũ sẽ bị xóa hết trong sheet đã chọn',
-      nzOnOk: () => {
-        this.gameService.setParticipants(
-          this.participants.filter((x) => x.isParticipate)
-        );
-
-        this.apiService.configSelectedSheet();
-        this.router.navigate(['/score-entry']);
-      },
-      nzOkText: 'Quất luôn',
-      nzCancelText: 'Đéo',
-    });
+    this.gameService.setParticipants(
+      this.participants.filter((x) => x.isParticipate)
+    );
+    this.apiService.configSelectedSheet();
+    this.gameService.setGameIsRunning(true);
+    this.router.navigate(['/score-entry']);
   }
 
   back() {
