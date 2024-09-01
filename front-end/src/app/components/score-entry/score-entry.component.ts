@@ -179,6 +179,7 @@ export class ScoreEntryComponent {
       });
       return;
     } else {
+      this.gameService.setSavedToRankings(false);
       const playerScores = this.players.map(
         (player) =>
           ({

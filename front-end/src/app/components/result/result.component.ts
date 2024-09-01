@@ -6,7 +6,7 @@ import { NzGridModule } from 'ng-zorro-antd/grid';
 import { NzTableModule } from 'ng-zorro-antd/table';
 import { NgxSpinnerModule } from 'ngx-spinner';
 import { ApiService } from '../../api.service';
-import { PlayerRanking } from '../../models/player.model';
+import { PlayerRanking, PlayerScoreModel } from '../../models/player.model';
 import { GameService } from '../../game-service.service';
 import { indexOf } from 'lodash';
 
@@ -25,6 +25,7 @@ import { indexOf } from 'lodash';
 })
 export class ResultComponent {
   isAuth: boolean = false;
+  isSaved: boolean = true;
   roundScores: number[] = [];
   constructor(
     private router: Router,
@@ -41,6 +42,7 @@ export class ResultComponent {
     if (response.success) {
       this.isAuth = true;
       this.getRoundScores();
+      this.isSaved = this.gameService.getSavedToRankings();
     }
   }
 
@@ -79,5 +81,22 @@ export class ResultComponent {
 
   refresh() {
     this.getRoundScores();
+  }
+
+  saveScoresToRankings() {
+    const players = this.players.map((player) => {
+      return {
+        id: player.id,
+        name: player.name,
+        score: player.score,
+      } as PlayerScoreModel;
+    });
+
+    this.apiService.saveScoresToRankings(players).then((response) => {
+      if (response.success) {
+        this.isSaved = true;
+        this.gameService.setSavedToRankings(true);
+      }
+    });
   }
 }

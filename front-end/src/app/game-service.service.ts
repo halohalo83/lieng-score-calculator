@@ -8,9 +8,19 @@ export class GameService {
   private initialScore: number = 0;
   private participants: ParticipantModel[] = [];
   private gameIsRunning: boolean = false;
+  private isSavedToRankings: boolean = false;
 
   constructor() {
     this.loadFromLocalStorage();
+  }
+
+  setSavedToRankings(isSaved: boolean): void {
+    this.isSavedToRankings = isSaved;
+    this.saveToLocalStorage();
+  }
+
+  getSavedToRankings(): boolean {
+    return this.isSavedToRankings;
   }
 
   setGameIsRunning(isRunning: boolean): void {
@@ -54,7 +64,8 @@ export class GameService {
       selectedSheetId: this.selectedSheetId,
       initialScore: this.initialScore,
       participants: this.participants,
-      gameIsRunning: this.gameIsRunning
+      gameIsRunning: this.gameIsRunning,
+      isSavedToRankings: this.isSavedToRankings,
     };
     localStorage.setItem('gameServiceData', JSON.stringify(data));
   }
@@ -67,6 +78,7 @@ export class GameService {
       this.initialScore = parsedData.initialScore;
       this.participants = parsedData.participants;
       this.gameIsRunning = parsedData.gameIsRunning;
+      this.isSavedToRankings = parsedData.isSavedToRankings;
     }
   }
 }

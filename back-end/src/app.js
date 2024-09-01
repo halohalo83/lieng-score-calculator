@@ -277,7 +277,6 @@ app.delete("/api/delete-last-round/:sheetId", async (req, res) => {
 
     // clear all row A3
 
-
     res.json({ success: true });
   } catch (error) {
     console.error("Error deleting last round:", error);
@@ -307,6 +306,72 @@ app.get("/api/get-round-scores/:sheetId", async (req, res) => {
     res
       .status(500)
       .json({ success: false, error: "Failed to get round scores" });
+  }
+});
+
+// save score to rankings route
+app.post("/api/save-scores-to-rankings", async (req, res) => {
+  const { players } = req.body;
+  try {
+    const auth = await authorize();
+    const sheets = google.sheets({ version: "v4", auth });
+
+    // Get existing scores from the rankings sheet
+    const range = `${await getSheetNameById(auth, rankingSheetId)}!A2:C`;
+    const response = await sheets.spreadsheets.values.get({
+      spreadsheetId,
+      range,
+    });
+
+    const existingScores = response.data.values || [];
+
+    // convert to array of PlayerScoreModel
+    const existingPlayerScores = existingScores.map(
+      ([id, name, score]) => new PlayerScoreModel(id, name, parseInt(score))
+    );
+
+    // Map to existing score and add up the new score
+    const playerScoresMap = existingPlayerScores.reduce((acc, player) => {
+      acc[player.id] = player;
+      return acc;
+    }, {});
+
+    players.forEach((player) => {
+      const playerScore = playerScoresMap[player.id];
+      if (playerScore) {
+        playerScore.score += player.score;
+      } else {
+        playerScoresMap[player.id] = new PlayerScoreModel(
+          player.id,
+          player.name,
+          player.score
+        );
+      }
+    });
+
+    // save to rankings sheet
+    const rankingValues = Object.values(playerScoresMap).map((player) => [
+      player.id,
+      player.name,
+      player.score,
+    ]);
+
+    await sheets.spreadsheets.values.update({
+      spreadsheetId,
+      range,
+      valueInputOption: "USER_ENTERED",
+      resource: {
+        values: rankingValues,
+      },
+    });
+
+
+    res.json({ success: true });
+  } catch (error) {
+    console.error("Error saving scores to rankings:", error);
+    res
+      .status(500)
+      .json({ success: false, error: "Failed to save scores to rankings" });
   }
 });
 
@@ -412,7 +477,7 @@ async function configSelectedSheet(auth, sheetId, players, initialScore) {
             red: 1,
             green: 1,
             blue: 0,
-          }
+          },
         },
       },
       fields: "userEnteredFormat.backgroundColor",

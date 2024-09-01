@@ -23,7 +23,7 @@
       </tr>
     </tbody>
   </nz-table>
-  <nz-row [nzGutter]="16">
+  <nz-row [nzGutter]="[16, 16]">
     <nz-col nzSpan="12">
       <button
         class="w-100"
@@ -45,6 +45,18 @@
         (click)="refresh()"
       >
         Làm mới
+      </button>
+    </nz-col>
+    <nz-col nzSpan="24">
+      <button
+        class="w-100"
+        [nzSize]="'large'"
+        nz-button
+        nzType="primary"
+        [disabled]="!isAuth || isSaved"
+        (click)="saveScoresToRankings()"
+      >
+        Cập nhật vào bảng xếp hạng
       </button>
     </nz-col>
   </nz-row>

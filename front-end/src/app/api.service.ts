@@ -203,4 +203,22 @@ export class ApiService {
       this.spinner.hide();
     }
   }
+
+  public async saveScoresToRankings(players: PlayerScoreModel[]) {
+    this.spinner.show();
+    try {
+      const response = await axios.post(
+        `${this.apiUrl}/save-scores-to-rankings`,
+        {
+          players,
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error('Error saving scores to rankings:', error);
+      throw error;
+    } finally {
+      this.spinner.hide();
+    }
+  }
 }
