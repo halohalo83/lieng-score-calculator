@@ -141,12 +141,27 @@ export class ScoreEntryComponent {
 
   checkChickenValidation() {
     var winnerChicken = this.players
-      .filter((x) => x.isWinner)
+      .filter((x) => x.isPositive)
       .reduce((acc, x) => acc + x.score, 0);
     var loserChicken = this.players
-      .filter((x) => !x.isWinner)
+      .filter((x) => !x.isPositive)
       .reduce((acc, x) => acc + x.score, 0);
     return winnerChicken === loserChicken;
+  }
+
+  autoCalculate(data: PlayerScoreViewModel) {
+    if(data.isPositive) {
+      return;
+    }
+    else {
+      var totalChicken = this.players.filter((x) => !x.isPositive).reduce((acc, x) => acc + x.score, 0);
+      var positivePlayers = this.players.filter((x) => x.isPositive);
+      var chickenPerPlayer = totalChicken / positivePlayers.length;
+      this.players = this.players.map((player) => ({
+        ...player,
+        score: player.isPositive ? chickenPerPlayer : player.score,
+      }));
+    }
   }
 
   finishRound() {
@@ -175,7 +190,6 @@ export class ScoreEntryComponent {
   }
 
   finishGame() {
-    // Save all scores and navigate to the result page
     this.router.navigate(['/result']);
   }
 

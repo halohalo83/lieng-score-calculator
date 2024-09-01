@@ -28,6 +28,7 @@
             [(ngModel)]="data.score"
             nzPlaceHolder="Bú"
             [nzDisabled]="isRoundFinished"
+            (ngModelChange)="autoCalculate(data)"
           ></nz-input-number>
         </td>
         <td nzAlign="center"><nz-switch [disabled]="(haveWinner && !data.isWinner) || isRoundFinished" [(ngModel)]="data.isWinner" (ngModelChange)="chooseWinner(data)"></nz-switch></td>
