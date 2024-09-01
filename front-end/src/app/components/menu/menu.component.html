@@ -57,6 +57,19 @@
         Bảng xếp hạng
       </button>
     </nz-col>
+    <nz-col nzSpan="24">
+      <button
+        [disabled]="!isAuth"
+        nz-button
+        class="w-100"
+        nzType="primary"
+        [nzSize]="'large'"
+        nzShape="round"
+        (click)="openSheetLink()"
+      >
+        Mở sheet
+      </button>
+    </nz-col>
   </nz-row>
 </div>
 <ngx-spinner bdColor = "rgba(0, 0, 0, 0.8)" size = "medium" color = "#fff" type = "ball-scale-multiple" [fullScreen] = "true"><p style="color: white" > Đang nấu gà... </p></ngx-spinner>
