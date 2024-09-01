@@ -7,7 +7,7 @@
     [nzAlign]="'middle'"
   >
   <nz-col nzSpan="24">
-    <button
+    <a
       nz-button
       class="w-100"
       nzType="primary"
@@ -17,7 +17,7 @@
       [disabled]="isAuth"
     >
       Xác thực tài khoản
-    </button>
+  </a>
   </nz-col>
     <nz-col nzSpan="24">
       <button
@@ -58,7 +58,7 @@
       </button>
     </nz-col>
     <nz-col nzSpan="24">
-      <button
+      <a
         [disabled]="!isAuth"
         nz-button
         class="w-100"
@@ -68,7 +68,7 @@
         (click)="openSheetLink()"
       >
         Mở sheet
-      </button>
+    </a>
     </nz-col>
   </nz-row>
 </div>
