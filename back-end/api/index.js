@@ -150,11 +150,11 @@ app.delete("/api/delete-sheet/:sheetId", async (req, res) => {
 
 // pre-config selected sheet route
 app.post("/api/config-selected-sheet", async (req, res) => {
-  const { sheetId, players, initialScore } = req.body;
+  const { sheetId, players } = req.body;
 
   try {
     const auth = await authorize();
-    await configSelectedSheet(auth, sheetId, players, initialScore);
+    await configSelectedSheet(auth, sheetId, players);
 
     res.json({ success: true });
   } catch (error) {
@@ -374,6 +374,29 @@ app.post("/api/save-scores-to-rankings", async (req, res) => {
   }
 });
 
+// get the last 5 rounds by sheetId route
+app.get("/api/get-last-5-rounds/:sheetId", async (req, res) => {
+  const { sheetId } = req.params;
+  try {
+    const auth = await authorize();
+    const sheets = google.sheets({ version: "v4", auth });
+
+    const sheetData = await sheets.spreadsheets.values.get({
+      spreadsheetId,
+      range: `${await getSheetNameById(auth, sheetId)}!A1:Z`,
+    });
+
+    const rounds = sheetData.data.values.slice(-5);
+
+    res.json({ success: true, rounds });
+  } catch (error) {
+    console.error("Error getting last 5 rounds:", error);
+    res
+      .status(500)
+      .json({ success: false, error: "Failed to get last 5 rounds" });
+  }
+});
+
 async function createSheet(auth, spreadsheetId) {
   const today = moment().format("DD/MM/YYYY");
 
@@ -408,7 +431,7 @@ async function createSheet(auth, spreadsheetId) {
   return sheetName;
 }
 
-async function configSelectedSheet(auth, sheetId, players, initialScore) {
+async function configSelectedSheet(auth, sheetId, players) {
   const sheets = google.sheets({ version: "v4", auth });
 
   await clearSheet(auth, sheetId);

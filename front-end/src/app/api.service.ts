@@ -75,8 +75,7 @@ export class ApiService {
           sheetId: this.gameService.getSelectedSheet(),
           players: this.gameService
             .getParticipants()
-            .map((x) => ({ id: x.id, name: x.name } as PlayerModel)),
-          initialScore: this.gameService.getInitialScore(),
+            .map((x) => ({ id: x.id, name: x.name } as PlayerModel))
         }
       );
       return response.data;
