@@ -4,6 +4,7 @@ import axios from 'axios';
 import { environment } from '../environments/environment';
 import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
 import { ParticipantModel, PlayerModel } from './models/player.model';
+import { GameService } from './game-service.service';
 
 @Injectable({
   providedIn: 'root',
@@ -11,7 +12,10 @@ import { ParticipantModel, PlayerModel } from './models/player.model';
 export class ApiService {
   private apiUrl = environment.apiUrl;
 
-  constructor(private spinner: NgxSpinnerService) {
+  constructor(
+    private spinner: NgxSpinnerService,
+    private gameService: GameService
+  ) {
     this.apiUrl = this.getApiUrl();
   }
 
@@ -57,19 +61,22 @@ export class ApiService {
     }
   }
 
-  public async updateSheet(sheetId: number, players: PlayerModel[]) {
+  public async configSelectedSheet() {
     this.spinner.show();
     try {
       const response = await axios.post(
-        `${this.apiUrl}/update-sheet`,
+        `${this.apiUrl}/config-selected-sheet`,
         {
-          sheetId: sheetId,
-          players: players,
+          sheetId: this.gameService.getSelectedSheet(),
+          players: this.gameService
+            .getParticipants()
+            .map((x) => ({ id: x.id, name: x.name } as PlayerModel)),
+          initialScore: this.gameService.getInitialScore(),
         }
       );
       return response.data;
     } catch (error) {
-      console.error('Error updating sheet:', error);
+      console.error('Error pre-config selected sheet:', error);
       throw error;
     } finally {
       this.spinner.hide();

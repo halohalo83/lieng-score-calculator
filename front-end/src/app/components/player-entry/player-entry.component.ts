@@ -92,17 +92,7 @@ export class PlayerEntryComponent {
       this.participants.filter((x) => x.isParticipate)
     );
 
-    this.apiService.updateSheet(
-      this.gameService.getSelectedSheet(),
-      this.participants
-        .filter((x) => x.isParticipate)
-        .map((x) => {
-          return {
-            id: x.id,
-            name: x.name,
-          } as PlayerModel;
-        })
-    );
+    this.apiService.configSelectedSheet();
     this.router.navigate(['/score-entry']);
   }
 

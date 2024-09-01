@@ -1,5 +1,5 @@
 class PlayerModel {
-    constructor(id, name, score) {
+    constructor(id, name) {
       this.id = id;
       this.name = name;
     }

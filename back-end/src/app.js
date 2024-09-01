@@ -5,7 +5,7 @@ const {
   authorize,
   getOAuth2Client,
   getAndSaveToken,
-  visitUrlToAuthorize
+  visitUrlToAuthorize,
 } = require("./config/authorize");
 const app = express();
 app.use(cors());
@@ -21,6 +21,7 @@ app.listen(PORT, () => {
 
 const moment = require("moment");
 const PlayerRankingModel = require("./models/player-ranking-model");
+const PlayerModel = require("./models/player-model");
 
 // OAuth2 callback route
 app.get("/oauth2callback", async (req, res) => {
@@ -41,7 +42,9 @@ app.get("/api/check-auth", async (req, res) => {
   try {
     const auth = await authorize();
     var isExpired = auth.isTokenExpiring();
-    res.json({ success: auth?.credentials?.access_token !== undefined && !isExpired });
+    res.json({
+      success: auth?.credentials?.access_token !== undefined && !isExpired,
+    });
   } catch (error) {
     console.error("Error checking auth:", error);
     res.status(500).json({ success: false });
@@ -81,7 +84,7 @@ app.get("/api/get-all-players", async (req, res) => {
 
     const sheetData = await sheets.spreadsheets.values.get({
       spreadsheetId,
-      range: `BXH!A2:C`,
+      range: `${await getSheetNameById(auth, rankingSheetId)}!A2:C`,
     });
 
     const players = sheetData.data.values.map(
@@ -105,7 +108,7 @@ app.get("/api/get-rankings", async (req, res) => {
 
     const sheetData = await sheets.spreadsheets.values.get({
       spreadsheetId,
-      range: `BXH!G2:J`,
+      range: `${await getSheetNameById(auth, rankingSheetId)}!G2:J`,
     });
 
     const rankings = sheetData.data.values.map(
@@ -115,9 +118,7 @@ app.get("/api/get-rankings", async (req, res) => {
     res.json({ success: true, rankings });
   } catch (error) {
     console.error("Error getting rankings:", error);
-    res
-      .status(500)
-      .json({ success: false, error: "Failed to get rankings" });
+    res.status(500).json({ success: false, error: "Failed to get rankings" });
   }
 });
 
@@ -125,8 +126,7 @@ app.get("/api/get-rankings", async (req, res) => {
 app.post("/api/create-sheet", async (req, res) => {
   try {
     const auth = await authorize();
-    const today = moment().format("DD/MM/YYYY");
-    const sheetName = await createSheet(auth, spreadsheetId, today);
+    const sheetName = await createSheet(auth, spreadsheetId);
 
     res.json({ success: true, sheetName });
   } catch (error) {
@@ -149,25 +149,13 @@ app.delete("/api/delete-sheet/:sheetId", async (req, res) => {
   }
 });
 
-// Function get sheet name by id route
-async function getSheetNameById(auth, sheetId) {
-  const sheets = google.sheets({ version: "v4", auth });
+// pre-config selected sheet route
+app.post("/api/config-selected-sheet", async (req, res) => {
+  const { sheetId, players, initialScore } = req.body;
 
-  const sheetData = await sheets.spreadsheets.get({ spreadsheetId });
-  const sheet = sheetData.data.sheets.find(
-    (sheet) => sheet.properties.sheetId === Number(sheetId)
-  );
-
-  return sheet.properties.title;
-}
-
-// Update sheet route
-app.post("/api/update-sheet", async (req, res) => {
-  const { sheetId, players } = req.body;
-  
   try {
     const auth = await authorize();
-    await updateSheet(auth, sheetId, players);
+    await configSelectedSheet(auth, sheetId, players, initialScore);
 
     res.json({ success: true });
   } catch (error) {
@@ -175,7 +163,6 @@ app.post("/api/update-sheet", async (req, res) => {
     res.status(500).json({ success: false, error: "Failed to update sheet" });
   }
 });
-
 
 // save score to sheet route
 app.post("/api/save-score", async (req, res) => {
@@ -188,7 +175,7 @@ app.post("/api/save-score", async (req, res) => {
     // Save score to rankings sheet
     const sheetData = await sheets.spreadsheets.values.get({
       spreadsheetId,
-      range: `BXH!A2:C`,
+      range: `${await getSheetNameById(auth, rankingSheetId)}!A2:C`,
     });
 
     const playerScores = sheetData.data.values.map(
@@ -224,7 +211,9 @@ app.post("/api/save-score", async (req, res) => {
   }
 });
 
-async function createSheet(auth, spreadsheetId, today) {
+async function createSheet(auth, spreadsheetId) {
+  const today = moment().format("DD/MM/YYYY");
+
   const sheets = google.sheets({ version: "v4", auth });
 
   const sheetsList = await sheets.spreadsheets.get({ spreadsheetId });
@@ -256,25 +245,15 @@ async function createSheet(auth, spreadsheetId, today) {
   return sheetName;
 }
 
-async function updateSheet(auth, sheetId, players) {
+async function configSelectedSheet(auth, sheetId, players, initialScore) {
   const sheets = google.sheets({ version: "v4", auth });
 
-  // Fill names to the first row 
+  await clearSheet(auth, sheetId);
+
+  // Fill names to the first row
   const names = players.map((player) => player.name);
 
   const range = `${await getSheetNameById(auth, sheetId)}!A1`;
-
-  const sheetData = await sheets.spreadsheets.values.get({
-    spreadsheetId,
-    range,
-  });
-
-  if (sheetData.data.values) {
-    await sheets.spreadsheets.values.clear({
-      spreadsheetId,
-      range,
-    });
-  }
 
   sheets.spreadsheets.values.update({
     spreadsheetId,
@@ -285,7 +264,7 @@ async function updateSheet(auth, sheetId, players) {
     },
   });
 
-  // Fill sum function 
+  // Fill sum function
   const numColumns = names.length;
 
   const requests = [];
@@ -313,16 +292,86 @@ async function updateSheet(auth, sheetId, players) {
             ],
           },
         ],
-        fields: 'userEnteredValue',
+        fields: "userEnteredValue",
       },
     });
   }
+
+  // Change color of the second row to yellow
+  requests.push({
+    repeatCell: {
+      range: {
+        sheetId,
+        startRowIndex: 1,
+        endRowIndex: 2,
+        startColumnIndex: 0,
+        endColumnIndex: numColumns,
+      },
+      cell: {
+        userEnteredFormat: {
+          backgroundColor: {
+            red: 1,
+            green: 1,
+            blue: 0,
+          },
+        },
+      },
+      fields: "userEnteredFormat.backgroundColor",
+    },
+  });
 
   // Batch update the sheet with the sum formulas
   await sheets.spreadsheets.batchUpdate({
     spreadsheetId,
     resource: {
       requests,
+    },
+  });
+}
+
+async function clearSheet(auth, sheetId) {
+  const sheets = google.sheets({ version: "v4", auth });
+
+  // Clear all data in the sheet
+  await sheets.spreadsheets.batchUpdate({
+    spreadsheetId,
+    resource: {
+      requests: [
+        {
+          updateCells: {
+            range: {
+              sheetId,
+            },
+            fields: "*",
+          },
+        },
+      ],
+    },
+  });
+
+  // Set all cells to white
+  await sheets.spreadsheets.batchUpdate({
+    spreadsheetId,
+    resource: {
+      requests: [
+        {
+          repeatCell: {
+            range: {
+              sheetId,
+            },
+            cell: {
+              userEnteredFormat: {
+                backgroundColor: {
+                  red: 1,
+                  green: 1,
+                  blue: 1,
+                },
+              },
+            },
+            fields: "userEnteredFormat.backgroundColor",
+          },
+        },
+      ],
     },
   });
 }
@@ -364,4 +413,86 @@ async function getAllSheets(auth, spreadsheetId) {
     );
 
   return existingSheets;
+}
+
+// Function get sheet name by id
+async function getSheetNameById(auth, sheetId) {
+  const sheets = google.sheets({ version: "v4", auth });
+
+  const sheetData = await sheets.spreadsheets.get({ spreadsheetId });
+  const sheet = sheetData.data.sheets.find(
+    (sheet) => sheet.properties.sheetId === Number(sheetId)
+  );
+
+  return sheet.properties.title;
+}
+
+async function applyConditionalFormatting(auth, sheetId, initialScore, range) {
+  const requests = [
+    {
+      addConditionalFormatRule: {
+        rule: {
+          ranges: [
+            {
+              sheetId,
+              startRowIndex: range.startRowIndex,
+              endRowIndex: range.endRowIndex,
+              startColumnIndex: range.startColumnIndex,
+              endColumnIndex: range.endColumnIndex,
+            },
+          ],
+          booleanRule: {
+            condition: {
+              type: "NUMBER_GREATER",
+              values: [
+                {
+                  userEnteredValue: initialScore,
+                },
+              ],
+            },
+            format: {
+              backgroundColor: { red: 183, green: 255, blue: 205 },
+            },
+          },
+        },
+      },
+    },
+
+    {
+      addConditionalFormatRule: {
+        rule: {
+          ranges: [
+            {
+              sheetId,
+              startRowIndex: range.startRowIndex,
+              endRowIndex: range.endRowIndex,
+              startColumnIndex: range.startColumnIndex,
+              endColumnIndex: range.endColumnIndex,
+            },
+          ],
+          booleanRule: {
+            condition: {
+              type: "NUMBER_LESS",
+              values: [
+                {
+                  userEnteredValue: 0,
+                },
+              ],
+            },
+            format: {
+              backgroundColor: { red: 244, green: 199, blue: 195 },
+            },
+          },
+        },
+      },
+    },
+  ];
+
+  await sheets.spreadsheets.batchUpdate({
+    auth,
+    spreadsheetId,
+    resource: {
+      requests,
+    },
+  });
 }
