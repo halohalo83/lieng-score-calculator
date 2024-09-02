@@ -87,10 +87,21 @@ export class HomeComponent {
 
   async createSheet() {
     try {
-      const response = await this.apiService.createSheet();
-      if (response.success) {
-        this.getAllSheets();
-      }
+      await this.apiService.createSheet().then(
+        (response) => {
+          if (response.success) {
+            this.getAllSheets();
+          }
+        },
+        (error) => {
+          if (error.status === 403) {
+            this.modal.error({
+              nzTitle: 'Lỗi',
+              nzContent: 'Bạn đéo có quyền thao tác',
+            });
+          }
+        }
+      );
     } catch (error) {
       console.error('Error creating sheet:', error);
     }
@@ -106,8 +117,7 @@ export class HomeComponent {
           this.form
             .get('selectedSheetId')
             ?.setValue(this.sheets[this.sheets.length - 1].sheetId);
-        }
-        else {
+        } else {
           this.form.get('selectedSheetId')?.setValue(null);
         }
       }
@@ -131,6 +141,14 @@ export class HomeComponent {
         this.apiService.deleteSheet(sheetId).then((response) => {
           if (response.success) {
             this.getAllSheets();
+          }
+        },
+        (error) => {
+          if(error.status === 403) {
+            this.modal.error({
+              nzTitle: 'Lỗi',
+              nzContent: 'Bạn đéo có quyền thao tác',
+            });
           }
         });
       },

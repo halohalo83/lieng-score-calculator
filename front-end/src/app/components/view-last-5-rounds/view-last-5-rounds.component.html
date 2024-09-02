@@ -1,5 +1,5 @@
 <div class="container">
-  <nz-row [nzGutter]="[16, 16]">
+  <nz-row [nzGutter]="[16, 16]" class="w-100">
     <nz-col nzSpan="24">
       <nz-table
         class="mb-3"
@@ -11,7 +11,9 @@
       >
         <thead>
           <tr>
-            <th [nzWidth]="'120px'" *ngFor="let player of players">{{ player }}</th>
+            <th [nzWidth]="'120px'" *ngFor="let player of players">
+              {{ player }}
+            </th>
           </tr>
         </thead>
         <tbody>
@@ -19,7 +21,6 @@
             <td *ngFor="let player of players; let i = index">
               <nz-input-number
                 [nzSize]="'large'"
-                [nzMin]="0"
                 type="number"
                 inputmode="numeric"
                 [(ngModel)]="round[i]"
@@ -32,16 +33,26 @@
     </nz-col>
     <nz-col nzSpan="12">
       <button
-      class="w-100"
-      [nzSize]="'large'"
-      nz-button
-      nzType="default"
-      (click)="back()"
-    >
-      Quay lại
-    </button>
+        class="w-100"
+        [nzSize]="'large'"
+        nz-button
+        nzType="default"
+        (click)="back()"
+      >
+        Quay lại
+      </button>
     </nz-col>
-    <nz-col nzSpan="12"></nz-col>
+    <nz-col nzSpan="12">
+      <button
+        class="w-100"
+        [nzSize]="'large'"
+        nz-button
+        nzType="primary"
+        (click)="save()"
+      >
+        Lưu lại
+      </button>
+    </nz-col>
   </nz-row>
 </div>
 

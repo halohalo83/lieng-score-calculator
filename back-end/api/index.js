@@ -248,6 +248,11 @@ app.post("/api/fill-round-scores", async (req, res) => {
 
     res.json({ success: true });
   } catch (error) {
+
+    if(error.status === 403) {
+      res.status(403).json({ success: false, error: "Bạn đéo có quyền thao tác" });
+      return;
+    }
     res
       .status(500)
       .json({ success: false, error: "Failed to fill score round" });

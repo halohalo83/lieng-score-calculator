@@ -28,9 +28,7 @@ import { GameService } from '../../game-service.service';
   styleUrl: './view-last-5-rounds.component.scss',
 })
 export class ViewLast5RoundsComponent {
-back() {
-throw new Error('Method not implemented.');
-}
+
   isAuth = false;
   players: string[] = [];
   roundScores: Array<number[]> = [];
@@ -55,18 +53,63 @@ throw new Error('Method not implemented.');
   }
 
   getPlayers() {
-    this.players = this.gameService.getParticipants().map((player) => player.name);
+    this.players = this.gameService
+      .getParticipants()
+      .map((player) => player.name);
     console.log(this.players, 'players');
   }
 
   getRoundScores() {
     this.apiService.getLast5Rounds().then((response) => {
-      this.roundScores = response.rounds;
+      this.roundScores = response.rounds
+      .map((round: string[]) => round.map(item => parseInt(item)));
       console.log(this.roundScores, 'roundScores');
     });
   }
 
-  save() {
+  checkValidation() {
+    let isValid = true;
+    this.roundScores.forEach(round => {
+      if (round.reduce((a, b) => a + b, 0) !== 0) {
+        return isValid = false;
+      }
+      else {
+        return;
+      }
+    });
 
+    return isValid;
+  }
+
+  save() {
+    if(!this.checkValidation()) {
+      this.modal.error({
+        nzTitle: 'Lỗi',
+        nzContent: 'Gà đéo khớp!',
+      });
+      return;
+    }
+    this.apiService.replaceLast5Round(this.roundScores).then(
+      (response) => {
+        if (response.success) {
+          this.modal.success({
+            nzTitle: 'Thành công',
+            nzContent: 'Sửa gà thành công!',
+          });
+        }
+      },
+      (error) => {
+        if (error.status === 403) {
+          this.modal.error({
+            nzTitle: 'Lỗi',
+            nzContent: 'Bạn đéo có quyền thao tác',
+          });
+        }
+      }
+    );
+  }
+
+  back() {
+    this.router.navigate(['/score-entry']);
   }
 }

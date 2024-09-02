@@ -237,9 +237,9 @@ export class ApiService {
     this.spinner.show();
     try {
       const response = await axios.post(
-        `${this.apiUrl}/replace-last-5-rounds/${this.gameService.getSelectedSheet()}`,
+        `${this.apiUrl}/replace-last-5-rounds`,
         {
-          sheedId: this.gameService.getSelectedSheet(),
+          sheetId: this.gameService.getSelectedSheet(),
           rounds,
         }
       );

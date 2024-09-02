@@ -95,6 +95,14 @@ export class ScoreEntryComponent {
           if (response.success) {
             this.clear();
           }
+        },
+        (error) => {
+          if(error.status === 403) {
+            this.modal.error({
+              nzTitle: 'Lỗi',
+              nzContent: 'Bạn đéo có quyền thao tác',
+            });
+          }
         });
       },
       nzOkText: 'Xóa',
@@ -188,11 +196,21 @@ export class ScoreEntryComponent {
           } as PlayerScoreModel)
       );
 
-      this.apiService.fillRoundScores(playerScores).then((response) => {
-        if (response.success) {
-          this.isRoundFinished = true;
+      this.apiService.fillRoundScores(playerScores).then(
+        (response) => {
+          if (response.success) {
+            this.isRoundFinished = true;
+          }
+        },
+        (error) => {
+          if(error.status === 403) {
+            this.modal.error({
+              nzTitle: 'Lỗi',
+              nzContent: 'Bạn đéo có quyền thao tác',
+            });
+          }
         }
-      });
+      );
     }
   }
 
