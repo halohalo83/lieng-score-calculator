@@ -16,7 +16,7 @@ import { NgxSpinnerModule } from 'ngx-spinner';
 import { ApiService } from '../../api.service';
 import { GameService } from '../../game-service.service';
 import { SheetModel } from '../../models/sheet.model';
-import { PlayerRanking } from '../../models/player.model';
+import { PlayerRanking, PlayerScoreModel } from '../../models/player.model';
 import { indexOf } from 'lodash';
 
 @Component({
@@ -111,16 +111,31 @@ export class ViewGameResultComponent {
   }
 
   getPlayers() {
-    this.players = this.gameService.getParticipants().map((player, index) => {
-      return {
-        rank: this.getRanking(this.roundScores[index]),
-        id: player.id,
-        name: player.name,
-        score: this.roundScores[index],
-      } as PlayerRanking;
+    // this.players = this.gameService.getParticipants().map((player, index) => {
+    //   return {
+    //     rank: this.getRanking(this.roundScores[index]),
+    //     id: player.id,
+    //     name: player.name,
+    //     score: this.roundScores[index],
+    //   } as PlayerRanking;
+    // });
+
+    // this.players.sort((a, b) => a.rank - b.rank);
+
+    this.apiService.getListPlayers(this.form.get('selectedSheetId')?.value).then((response) => {
+      if (response.success) {
+        this.players = response.players.map((player: PlayerScoreModel, index) => {
+          return {
+            rank: this.getRanking(this.roundScores[index]),
+            id: player.id,
+            name: player.name,
+            score: this.roundScores[index],
+          } as PlayerRanking;
+        });
+        this.players.sort((a, b) => a.rank - b.rank);
+      }
     });
 
-    this.players.sort((a, b) => a.rank - b.rank);
   }
 
   getRanking(score: Number) {

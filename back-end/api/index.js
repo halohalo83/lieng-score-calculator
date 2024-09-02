@@ -460,6 +460,29 @@ app.post("/api/replace-last-5-rounds", async (req, res) => {
   }
 });
 
+// get list name of players in a sheet route
+app.get("/api/get-list-players/:sheetId", async (req, res) => {
+  const { sheetId } = req.params;
+  try {
+    const auth = await authorize();
+    const sheets = google.sheets({ version: "v4", auth });
+
+    const sheetData = await sheets.spreadsheets.values.get({
+      spreadsheetId,
+      range: `${await getSheetNameById(auth, sheetId)}!A1:Z`,
+    });
+
+    const players = sheetData.data.values[0].slice(1);
+
+    res.json({ success: true, players });
+  } catch (error) {
+    console.error("Error getting list players:", error);
+    res
+      .status(500)
+      .json({ success: false, error: "Failed to get list players" });
+  }
+});
+
 async function createSheet(auth, spreadsheetId) {
   const today = moment().format("DD/MM/YYYY");
 

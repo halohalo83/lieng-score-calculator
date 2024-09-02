@@ -251,4 +251,19 @@ export class ApiService {
       this.spinner.hide();
     }
   }
+
+  public async getListPlayers(sheetId: number) {
+    this.spinner.show();
+    try {
+      const response = await axios.get(
+        `${this.apiUrl}/get-list-players/${sheetId}`
+      );
+      return response.data;
+    } catch (error) {
+      console.error('Error getting list players:', error);
+      throw error;
+    } finally {
+      this.spinner.hide();
+    }
+  }
 }
