@@ -43,6 +43,13 @@ export class MenuComponent {
   }
 
   openSheetLink() {
-    window.open('https://docs.google.com/spreadsheets/d/10ioKPL3Y4jofGZCCMJoFpFsl4tk5XBX-LuFN3XZSVKs/edit?usp=sharing', '_blank');
+    window.open(
+      'https://docs.google.com/spreadsheets/d/10ioKPL3Y4jofGZCCMJoFpFsl4tk5XBX-LuFN3XZSVKs/edit?usp=sharing',
+      '_blank'
+    );
+  }
+
+  viewGameResult() {
+    this.router.navigate(['/view-game-result']);
   }
 }

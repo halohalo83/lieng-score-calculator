@@ -1,0 +1,89 @@
+<div class="container">
+  <form [formGroup]="form">
+    <nz-row [nzGutter]="[16, 16]">
+      <nz-col nzSpan="24">
+        <nz-table
+          class="mb-3"
+          #basicTable
+          [nzData]="players"
+          [nzFrontPagination]="false"
+          [nzShowPagination]="false"
+          [nzScroll]="{ y: '500px' }"
+          nzBordered
+        >
+          <thead>
+            <tr>
+              <th nzAlign="center" [nzWidth]="'100px'">Rank</th>
+              <th [nzWidth]="'150px'">Tên</th>
+              <th nzAlign="center" [nzWidth]="'100px'">Gà</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let data of basicTable.data">
+              <td nzAlign="center">{{ data.rank }}</td>
+              <td>{{ data.name }}</td>
+              <td nzAlign="center">{{ data.score }}</td>
+            </tr>
+          </tbody>
+        </nz-table>
+      </nz-col>
+      <nz-col nzSpan="12">
+        <nz-select
+          class="form-control"
+          class="w-100"
+          formControlName="selectedSheetId"
+          [disabled]="!isAuth"
+        >
+          <nz-option
+            *ngFor="let option of sheets"
+            [nzValue]="option.sheetId"
+            [nzLabel]="option.title"
+          ></nz-option>
+        </nz-select>
+      </nz-col>
+      <nz-col nzSpan="12">
+        <button
+          class="w-100"
+          [nzSize]="'large'"
+          nz-button
+          [disabled]="!isAuth"
+          (click)="refresh()"
+        >
+          Làm mới
+        </button>
+      </nz-col>
+      <nz-col nzSpan="24">
+        <button
+          class="w-100"
+          [nzSize]="'large'"
+          nz-button
+          nzType="primary"
+          [disabled]="!isAuth"
+          (click)="viewResult()"
+        >
+          Xem kết quả
+        </button>
+      </nz-col>
+      <nz-col nzSpan="24">
+        <button
+          class="w-100"
+          [nzSize]="'large'"
+          nz-button
+          nzType="default"
+          (click)="back()"
+        >
+          Quay lại
+        </button>
+      </nz-col>
+    </nz-row>
+  </form>
+</div>
+
+<ngx-spinner
+  bdColor="rgba(0, 0, 0, 0.8)"
+  size="medium"
+  color="#fff"
+  type="ball-scale-multiple"
+  [fullScreen]="true"
+  ><p style="color: white">Đang nấu gà...</p></ngx-spinner
+>

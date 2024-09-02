@@ -5,6 +5,7 @@ import { ScoreEntryComponent } from './components/score-entry/score-entry.compon
 import { ResultComponent } from './components/result/result.component';
 import { MenuComponent } from './components/menu/menu.component';
 import { RankingsComponent } from './components/rankings/rankings.component';
+import { ViewGameResultComponent } from './components/view-game-result/view-game-result.component';
 
 export const routes: Routes = [
   { path: '', component: MenuComponent },
@@ -13,4 +14,5 @@ export const routes: Routes = [
   { path: 'score-entry', component: ScoreEntryComponent },
   { path: 'result', component: ResultComponent },
   { path: 'ranking', component: RankingsComponent },
+  { path: 'view-game-result', component: ViewGameResultComponent}
 ];

@@ -185,11 +185,11 @@ export class ApiService {
     }
   }
 
-  public async getRoundScores() {
+  public async getRoundScores(sheetId: number) {
     this.spinner.show();
     try {
       const response = await axios.get(
-        `${this.apiUrl}/get-round-scores/${this.gameService.getSelectedSheet()}`
+        `${this.apiUrl}/get-round-scores/${sheetId}`
       );
       return response.data;
     } catch (error) {

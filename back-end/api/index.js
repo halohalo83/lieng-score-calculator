@@ -418,6 +418,15 @@ app.post("/api/replace-last-5-rounds", async (req, res) => {
 
     const startRowNeedClear = lastRowIndex - rounds.length + 1;
 
+    const sumOfRounds = rounds.reduce((acc, round) => {
+      return acc + round.reduce((acc, score) => acc + Number(score), 0);
+    }, 0);
+
+    if (sumOfRounds !== 0) {
+      res.status(400).json({ success: false, error: "Gà đéo khớp, kiểm tra lại" });
+      return;
+    }
+
     await sheets.spreadsheets.values.clear({
       spreadsheetId,
       range: `${await getSheetNameById(auth, sheetId)}!A${startRowNeedClear}:Z`,
@@ -426,10 +435,6 @@ app.post("/api/replace-last-5-rounds", async (req, res) => {
     // Fill the rounds
     for (let i = 0; i < rounds.length; i++) {
 
-      if(rounds[i].reduce((a, b) => a + b, 0) !== 0) {
-        res.status(400).json({ success: false, error: "Gà đéo khớp, kiểm tra lại" });
-        return;
-      }
 
       await sheets.spreadsheets.values.update({
         spreadsheetId,

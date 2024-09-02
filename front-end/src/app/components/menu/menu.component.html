@@ -39,6 +39,19 @@
         nzType="primary"
         [nzSize]="'large'"
         nzShape="round"
+        (click)="viewGameResult()"
+        [disabled]="!isAuth"
+      >
+        Theo dõi trận
+      </button>
+    </nz-col>
+    <nz-col nzSpan="24">
+      <button
+        nz-button
+        class="w-100"
+        nzType="primary"
+        [nzSize]="'large'"
+        nzShape="round"
         [disabled]="true"
       >
         Đăng ký

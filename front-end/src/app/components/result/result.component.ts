@@ -47,7 +47,7 @@ export class ResultComponent {
   }
 
   getRoundScores() {
-    this.apiService.getRoundScores().then((response) => {
+    this.apiService.getRoundScores(this.gameService.getSelectedSheet()).then((response) => {
       if (response.success) {
         this.roundScores = response.scores;
         this.getPlayers();
