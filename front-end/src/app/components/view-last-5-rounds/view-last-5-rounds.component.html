@@ -1,0 +1,55 @@
+<div class="container">
+  <nz-row [nzGutter]="[16, 16]">
+    <nz-col nzSpan="24">
+      <nz-table
+        class="mb-3"
+        [nzTemplateMode]="true"
+        [nzFrontPagination]="false"
+        [nzShowPagination]="false"
+        [nzScroll]="{ x: '100px', y: '500px' }"
+        nzBordered
+      >
+        <thead>
+          <tr>
+            <th [nzWidth]="'120px'" *ngFor="let player of players">{{ player }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let round of roundScores">
+            <td *ngFor="let player of players; let i = index">
+              <nz-input-number
+                [nzSize]="'large'"
+                [nzMin]="0"
+                type="number"
+                inputmode="numeric"
+                [(ngModel)]="round[i]"
+                nzPlaceHolder="Bú"
+              ></nz-input-number>
+            </td>
+          </tr>
+        </tbody>
+      </nz-table>
+    </nz-col>
+    <nz-col nzSpan="12">
+      <button
+      class="w-100"
+      [nzSize]="'large'"
+      nz-button
+      nzType="default"
+      (click)="back()"
+    >
+      Quay lại
+    </button>
+    </nz-col>
+    <nz-col nzSpan="12"></nz-col>
+  </nz-row>
+</div>
+
+<ngx-spinner
+  bdColor="rgba(0, 0, 0, 0.8)"
+  size="medium"
+  color="#fff"
+  type="ball-scale-multiple"
+  [fullScreen]="true"
+  ><p style="color: white">Đang nấu gà...</p></ngx-spinner
+>

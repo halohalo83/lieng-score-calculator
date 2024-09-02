@@ -89,6 +89,17 @@
         class="w-100"
         [nzSize]="'large'"
         nz-button
+        nzType="default"
+        (click)="viewLast5Rounds()"
+      >
+        Xem lại 5 ván gần nhất
+      </button>
+    </nz-col>
+    <nz-col nzSpan="24">
+      <button
+        class="w-100"
+        [nzSize]="'large'"
+        nz-button
         nzDanger
         nzType="primary"
         (click)="finishGame()"

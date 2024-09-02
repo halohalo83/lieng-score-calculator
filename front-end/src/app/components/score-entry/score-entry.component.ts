@@ -45,8 +45,7 @@ export class ScoreEntryComponent {
     private gameService: GameService,
     private apiService: ApiService,
     private modal: NzModalService
-  ) {
-  }
+  ) {}
 
   ngOnInit(): void {
     this.checkAuth();
@@ -101,7 +100,6 @@ export class ScoreEntryComponent {
       nzOkText: 'Xóa',
       nzCancelText: 'Đéo',
     });
-
   }
 
   chooseWinner(player: PlayerScoreViewModel) {
@@ -153,11 +151,12 @@ export class ScoreEntryComponent {
   }
 
   autoCalculate(data: PlayerScoreViewModel) {
-    if(data.isPositive) {
+    if (data.isPositive) {
       return;
-    }
-    else {
-      var totalChicken = this.players.filter((x) => !x.isPositive).reduce((acc, x) => acc + x.score, 0);
+    } else {
+      var totalChicken = this.players
+        .filter((x) => !x.isPositive)
+        .reduce((acc, x) => acc + x.score, 0);
       var positivePlayers = this.players.filter((x) => x.isPositive);
       var chickenPerPlayer = totalChicken / positivePlayers.length;
       this.players = this.players.map((player) => ({
@@ -203,5 +202,9 @@ export class ScoreEntryComponent {
 
   back() {
     this.router.navigate(['/player-entry']);
+  }
+
+  viewLast5Rounds() {
+    this.router.navigate(['/view-last-5-rounds']);
   }
 }
