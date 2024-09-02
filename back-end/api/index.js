@@ -27,7 +27,8 @@ app.get("/oauth2callback", async (req, res) => {
   const code = req.query.code;
   try {
     const oAuth2Client = await getOAuth2Client();
-    await getAndSaveToken(oAuth2Client, code);
+    const { tokens } = await oAuth2Client.getToken(code);
+    await getAndSaveToken(oAuth2Client, tokens);
     res.send("Authentication successful! You can close this tab.");
   } catch (error) {
     console.error("Error retrieving access token", error);
@@ -247,7 +248,6 @@ app.post("/api/fill-round-scores", async (req, res) => {
 
     res.json({ success: true });
   } catch (error) {
-    console.error("Error filling score round:", error);
     res
       .status(500)
       .json({ success: false, error: "Failed to fill score round" });
@@ -381,7 +381,7 @@ app.get("/api/get-last-5-rounds/:sheetId", async (req, res) => {
 
     const sheetData = await sheets.spreadsheets.values.get({
       spreadsheetId,
-      range: `${await getSheetNameById(auth, sheetId)}!A1:Z`,
+      range: `${await getSheetNameById(auth, sheetId)}!A3:Z`,
     });
 
     const rounds = sheetData.data.values.slice(-5);

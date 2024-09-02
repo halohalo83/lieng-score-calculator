@@ -33,8 +33,18 @@ async function authorize() {
 
   if (token) {
     oAuth2Client.setCredentials(JSON.parse(token));
-  } else {
-    throw new Error("No token found");
+
+    // Check if token is expired
+    if (oAuth2Client.isTokenExpiring()) {
+      try {
+        const newToken = await oAuth2Client.refreshAccessToken();
+        oAuth2Client.setCredentials(newToken.credentials);
+        await getAndSaveToken(oAuth2Client, newToken.credentials);
+
+      } catch (error) {
+        throw new Error('Error refreshing access token: ' + error.message);
+      }
+    }
   }
 
   return oAuth2Client;
@@ -49,10 +59,8 @@ async function visitUrlToAuthorize() {
   return authUrl;
 }
 
-async function getAndSaveToken(oAuth2Client, code) {
-  const { tokens } = await oAuth2Client.getToken(code);
+async function getAndSaveToken(oAuth2Client, tokens) {
   oAuth2Client.setCredentials(tokens);
-
   // Store the token to environment variable or file
   if (process.env.NODE_ENV === 'production') {
     process.env.GOOGLE_TOKEN = JSON.stringify(tokens); // Save token to environment variable in production
