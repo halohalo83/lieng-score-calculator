@@ -395,6 +395,61 @@ app.get("/api/get-last-5-rounds/:sheetId", async (req, res) => {
   }
 });
 
+// replace the last 5 rounds by sheetId route
+app.post("/api/replace-last-5-rounds", async (req, res) => {
+  const { sheetId, rounds } = req.body;
+  try {
+    const auth = await authorize();
+    const sheets = google.sheets({ version: "v4", auth });
+
+    const range = `${await getSheetNameById(auth, sheetId)}!A1:Z`;
+
+    const sheetData = await sheets.spreadsheets.values.get({
+      spreadsheetId,
+      range,
+    });
+
+    const lastRowIndex = sheetData.data.values.length;
+
+    if(rounds.length > (lastRowIndex - 2)) {
+      res.status(400).json({ success: false, error: "Number of rounds is greater than the number of rounds in the sheet" });
+      return;
+    }
+
+    const startRowNeedClear = lastRowIndex - rounds.length + 1;
+
+    await sheets.spreadsheets.values.clear({
+      spreadsheetId,
+      range: `${await getSheetNameById(auth, sheetId)}!A${startRowNeedClear}:Z`,
+    });
+
+    // Fill the rounds
+    for (let i = 0; i < rounds.length; i++) {
+
+      if(rounds[i].reduce((a, b) => a + b, 0) !== 0) {
+        res.status(400).json({ success: false, error: "Gà đéo khớp, kiểm tra lại" });
+        return;
+      }
+
+      await sheets.spreadsheets.values.update({
+        spreadsheetId,
+        range: `${await getSheetNameById(auth, sheetId)}!A${startRowNeedClear + i}:Z`,
+        valueInputOption: "USER_ENTERED",
+        resource: {
+          values: [rounds[i]],
+        },
+      });
+    }
+
+    res.json({ success: true });
+  } catch (error) {
+    console.error("Error replacing last 5 rounds:", error);
+    res
+      .status(500)
+      .json({ success: false, error: "Failed to replace last 5 rounds" });
+  }
+});
+
 async function createSheet(auth, spreadsheetId) {
   const today = moment().format("DD/MM/YYYY");
 

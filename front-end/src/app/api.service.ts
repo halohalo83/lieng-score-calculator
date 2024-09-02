@@ -1,15 +1,12 @@
-import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import axios from 'axios';
+import { NgxSpinnerService } from 'ngx-spinner';
 import { environment } from '../environments/environment';
-import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
-import {
-  ParticipantModel,
-  PlayerModel,
-  PlayerScoreModel,
-  PlayerScoreViewModel,
-} from './models/player.model';
 import { GameService } from './game-service.service';
+import {
+  PlayerModel,
+  PlayerScoreModel
+} from './models/player.model';
 
 @Injectable({
   providedIn: 'root',
@@ -215,6 +212,40 @@ export class ApiService {
       return response.data;
     } catch (error) {
       console.error('Error saving scores to rankings:', error);
+      throw error;
+    } finally {
+      this.spinner.hide();
+    }
+  }
+
+  public async getLast5Rounds() {
+    this.spinner.show();
+    try {
+      const response = await axios.get(
+        `${this.apiUrl}/get-last-5-rounds/${this.gameService.getSelectedSheet()}`
+      );
+      return response.data;
+    } catch (error) {
+      console.error('Error getting 5 last rounds:', error);
+      throw error;
+    } finally {
+      this.spinner.hide();
+    }
+  }
+
+  public async replaceLast5Round(rounds: Array<Number[]>) {
+    this.spinner.show();
+    try {
+      const response = await axios.post(
+        `${this.apiUrl}/replace-last-5-rounds/${this.gameService.getSelectedSheet()}`,
+        {
+          sheedId: this.gameService.getSelectedSheet(),
+          rounds,
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error('Error replacing last 5 round:', error);
       throw error;
     } finally {
       this.spinner.hide();
