@@ -19,13 +19,25 @@ async function authorize() {
   const oAuth2Client = await getOAuth2Client();
 
   // Check if we have previously stored a token.
-  if (fs.existsSync(TOKEN_PATH)) {
-    oAuth2Client.setCredentials(JSON.parse(fs.readFileSync(TOKEN_PATH)));
-    return oAuth2Client;
+  let token;
+  if (process.env.NODE_ENV === 'production') {
+    token = process.env.GOOGLE_TOKEN; // Use environment variable for token in production
+    if (!token) {
+      throw new Error("Missing required environment variable: 'GOOGLE_TOKEN'");
+    }
   } else {
-    console.log('Authorize this app by visiting this url:', await visitUrlToAuthorize());
-    return oAuth2Client;
+    if (fs.existsSync(TOKEN_PATH)) {
+      token = fs.readFileSync(TOKEN_PATH, 'utf8'); // Read token from file in development
+    }
   }
+
+  if (token) {
+    oAuth2Client.setCredentials(JSON.parse(token));
+  } else {
+    throw new Error("No token found");
+  }
+
+  return oAuth2Client;
 }
 
 async function visitUrlToAuthorize() {
@@ -37,11 +49,16 @@ async function visitUrlToAuthorize() {
   return authUrl;
 }
 
-async function getAndSaveToken(token) {
-  const oAuth2Client = await getOAuth2Client();
-  oAuth2Client.setCredentials(token);
-  fs.writeFileSync(TOKEN_PATH, JSON.stringify(token));
-  console.log('Token stored to', TOKEN_PATH);
+async function getAndSaveToken(oAuth2Client, code) {
+  const { tokens } = await oAuth2Client.getToken(code);
+  oAuth2Client.setCredentials(tokens);
+
+  // Store the token to environment variable or file
+  if (process.env.NODE_ENV === 'production') {
+    process.env.GOOGLE_TOKEN = JSON.stringify(tokens); // Save token to environment variable in production
+  } else {
+    fs.writeFileSync(TOKEN_PATH, JSON.stringify(tokens)); // Save token to file in development
+  }
 }
 
 module.exports = { authorize, visitUrlToAuthorize, getOAuth2Client, getAndSaveToken};

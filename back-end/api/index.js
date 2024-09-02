@@ -27,12 +27,11 @@ app.get("/oauth2callback", async (req, res) => {
   const code = req.query.code;
   try {
     const oAuth2Client = await getOAuth2Client();
-    const { tokens } = await oAuth2Client.getToken(code);
-    await getAndSaveToken(tokens);
+    await getAndSaveToken(oAuth2Client, code);
     res.send("Authentication successful! You can close this tab.");
   } catch (error) {
     console.error("Error retrieving access token", error);
-    res.status(500).send("Error retrieving access token");
+    res.status(500).send(`Error retrieving access token: ${error}`);
   }
 });
 
@@ -363,7 +362,6 @@ app.post("/api/save-scores-to-rankings", async (req, res) => {
         values: rankingValues,
       },
     });
-
 
     res.json({ success: true });
   } catch (error) {
