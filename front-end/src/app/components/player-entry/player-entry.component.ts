@@ -89,27 +89,29 @@ export class PlayerEntryComponent {
   }
 
   chooseAgain() {
+    this.participants = this.participants.map((x) => {
+      x.isParticipate = false;
+      return x;
+    });
+    this.gameService.setGameIsRunning(false);
+    this.gameIsRunning = false;
+  }
+
+  save() {
     this.modal.confirm({
       nzTitle: 'Dữ liệu sẽ bị xóa hết trong sheet?',
-      nzContent: 'Nếu chọn lại, dữ liệu cũ sẽ bị xóa hết trong sheet đã chọn',
+      nzContent: 'Nếu lưu lại, dữ liệu cũ sẽ bị xóa hết trong sheet đã chọn',
       nzOnOk: () => {
-        this.participants = this.participants.map((x) => {
-          x.isParticipate = false;
-          return x;
-        });
-        this.gameService.setGameIsRunning(false);
-        this.gameIsRunning = false;
+        this.gameService.setParticipants(
+          this.participants.filter((x) => x.isParticipate)
+        );
+        this.gameService.setGameIsRunning(true);
+        this.gameIsRunning = true;
+        this.apiService.configSelectedSheet();
       },
       nzOkText: 'Quất luôn',
       nzCancelText: 'Đéo',
     });
-  }
-
-  save() {
-    this.gameService.setParticipants(this.participants.filter((x) => x.isParticipate));
-    this.gameService.setGameIsRunning(true);
-    this.gameIsRunning = true;
-    this.apiService.configSelectedSheet();
   }
 
   hasParticipants(): boolean {
