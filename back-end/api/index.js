@@ -6,7 +6,7 @@ const {
   getOAuth2Client,
   getAndSaveToken,
   visitUrlToAuthorize,
-  logOut
+  logOut,
 } = require("../src/config/authorize");
 const app = express();
 app.use(cors());
@@ -26,29 +26,29 @@ const PlayerRankingModel = require("../src/models/player-ranking-model");
 // OAuth2 callback route
 app.get("/oauth2callback", async (req, res) => {
   const code = req.query.code;
-  const deviceInfo = req.headers['user-agent'];
+  const deviceInfo = req.headers["user-agent"];
   try {
     const oAuth2Client = await getOAuth2Client();
     const { tokens } = await oAuth2Client.getToken(code);
-    
+
     await getAndSaveToken(oAuth2Client, tokens, deviceInfo);
     res.send("Authorization successful!");
   } catch (error) {
-    res.status(500).send(`Error during authorization: ${error.message}`);
+    res.status(error.status).send(`${error.message}`);
   }
 });
 
 // Check auth route
 app.get("/api/check-auth", async (req, res) => {
   try {
-    const auth = await authorize(req.headers['user-agent']);
+    const auth = await authorize(req.headers["user-agent"]);
     var isExpired = auth.isTokenExpiring();
     res.json({
       success: auth?.credentials?.access_token !== undefined && !isExpired,
     });
   } catch (error) {
-    console.error("Error checking auth:", error);
-    res.status(500).json({ success: false });
+    
+    res.status(error.status).send(`${error.message}`);
   }
 });
 
@@ -58,8 +58,7 @@ app.get("/api/log-out", async (req, res) => {
     await logOut();
     res.json({ success: true, message: "Logged out successfully" });
   } catch (error) {
-    console.error("Error logging out:", error);
-    res.status(500).json({ success: false, error: "Failed to log out" });
+    res.status(error.status).send(`${error.message}`);
   }
 });
 
@@ -69,29 +68,27 @@ app.get("/api/get-auth-url", async (req, res) => {
     const authUrl = await visitUrlToAuthorize();
     res.json({ success: true, authUrl });
   } catch (error) {
-    console.error("Error getting auth url:", error);
-    res.status(500).json({ success: false, error: "Failed to get auth url" });
+    res.status(error.status).send(`${error.message}`);
   }
 });
 
 // Get all sheets route
 app.get("/api/get-all-sheets", async (req, res) => {
   try {
-    const auth = await authorize(req.headers['user-agent']);
+    const auth = await authorize(req.headers["user-agent"]);
 
     const result = await getAllSheets(auth, spreadsheetId);
 
     res.json({ success: true, result });
   } catch (error) {
-    console.error("Error getting all sheets:", error);
-    res.status(500).json({ success: false, error: "Failed to get all sheets" });
+    res.status(error.status).send(`${error.message}`);
   }
 });
 
 // Get all players route
 app.get("/api/get-all-players", async (req, res) => {
   try {
-    const auth = await authorize(req.headers['user-agent']);
+    const auth = await authorize(req.headers["user-agent"]);
     const sheets = google.sheets({ version: "v4", auth });
 
     const sheetData = await sheets.spreadsheets.values.get({
@@ -105,17 +102,14 @@ app.get("/api/get-all-players", async (req, res) => {
 
     res.json({ success: true, players });
   } catch (error) {
-    console.error("Error getting all players:", error);
-    res
-      .status(500)
-      .json({ success: false, error: "Failed to get all players" });
+    res.status(error.status).send(`${error.message}`);
   }
 });
 
 // Get all rankings route
 app.get("/api/get-rankings", async (req, res) => {
   try {
-    const auth = await authorize(req.headers['user-agent']);
+    const auth = await authorize(req.headers["user-agent"]);
     const sheets = google.sheets({ version: "v4", auth });
 
     const sheetData = await sheets.spreadsheets.values.get({
@@ -129,21 +123,20 @@ app.get("/api/get-rankings", async (req, res) => {
 
     res.json({ success: true, rankings });
   } catch (error) {
-    console.error("Error getting rankings:", error);
-    res.status(500).json({ success: false, error: "Failed to get rankings" });
+    res.status(error.status).send(`${error.message}`);
   }
 });
 
 // Auto generate sheet
 app.post("/api/create-sheet", async (req, res) => {
   try {
-    const auth = await authorize(req.headers['user-agent']);
+    const auth = await authorize(req.headers["user-agent"]);
     const sheetName = await createSheet(auth, spreadsheetId);
 
     res.json({ success: true, sheetName });
   } catch (error) {
-    console.error("Error creating sheet:", error);
-    res.status(500).json({ success: false, error: "Failed to create sheet" });
+    console.log(error, "errror");
+    res.status(error.status).send(`${error.message}`);
   }
 });
 
@@ -151,13 +144,12 @@ app.post("/api/create-sheet", async (req, res) => {
 app.delete("/api/delete-sheet/:sheetId", async (req, res) => {
   const { sheetId } = req.params;
   try {
-    const auth = await authorize(req.headers['user-agent']);
+    const auth = await authorize(req.headers["user-agent"]);
     await deleteSheet(auth, spreadsheetId, Number(sheetId));
 
     res.json({ success: true });
   } catch (error) {
-    console.error("Error deleting sheet:", error);
-    res.status(500).json({ success: false, error: "Failed to delete sheet" });
+    res.status(error.status).send(`${error.message}`);
   }
 });
 
@@ -166,13 +158,12 @@ app.post("/api/config-selected-sheet", async (req, res) => {
   const { sheetId, players } = req.body;
 
   try {
-    const auth = await authorize(req.headers['user-agent']);
+    const auth = await authorize(req.headers["user-agent"]);
     await configSelectedSheet(auth, sheetId, players);
 
     res.json({ success: true });
   } catch (error) {
-    console.error("Error updating sheet:", error);
-    res.status(500).json({ success: false, error: "Failed to update sheet" });
+    res.status(error.status).send(`${error.message}`);
   }
 });
 
@@ -181,7 +172,7 @@ app.post("/api/save-score", async (req, res) => {
   // req.body will have sheetId, list of playerModel
   const { sheetId, players } = req.body;
   try {
-    const auth = await authorize(req.headers['user-agent']);
+    const auth = await authorize(req.headers["user-agent"]);
     const sheets = google.sheets({ version: "v4", auth });
 
     // Save score to rankings sheet
@@ -218,8 +209,7 @@ app.post("/api/save-score", async (req, res) => {
 
     res.json({ success: true });
   } catch (error) {
-    console.error("Error saving score:", error);
-    res.status(500).json({ success: false, error: "Failed to save score" });
+    res.status(error.status).send(`${error.message}`);
   }
 });
 
@@ -228,7 +218,7 @@ app.post("/api/fill-round-scores", async (req, res) => {
   const { sheetId, players, initialScore } = req.body;
 
   try {
-    const auth = await authorize(req.headers['user-agent']);
+    const auth = await authorize(req.headers["user-agent"]);
     const sheets = google.sheets({ version: "v4", auth });
 
     // find the last row of the sheet
@@ -261,14 +251,7 @@ app.post("/api/fill-round-scores", async (req, res) => {
 
     res.json({ success: true });
   } catch (error) {
-
-    if(error.status === 403) {
-      res.status(403).json({ success: false, error: "Bạn đéo có quyền thao tác" });
-      return;
-    }
-    res
-      .status(500)
-      .json({ success: false, error: "Failed to fill score round" });
+    res.status(error.status).send(`${error.message}`);
   }
 });
 
@@ -276,7 +259,7 @@ app.post("/api/fill-round-scores", async (req, res) => {
 app.delete("/api/delete-last-round/:sheetId", async (req, res) => {
   const { sheetId } = req.params;
   try {
-    const auth = await authorize(req.headers['user-agent']);
+    const auth = await authorize(req.headers["user-agent"]);
     const sheets = google.sheets({ version: "v4", auth });
 
     const sheetData = await sheets.spreadsheets.values.get({
@@ -295,10 +278,7 @@ app.delete("/api/delete-last-round/:sheetId", async (req, res) => {
 
     res.json({ success: true });
   } catch (error) {
-    console.error("Error deleting last round:", error);
-    res
-      .status(500)
-      .json({ success: false, error: "Failed to delete last round" });
+    res.status(error.status).send(`${error.message}`);
   }
 });
 
@@ -306,7 +286,7 @@ app.delete("/api/delete-last-round/:sheetId", async (req, res) => {
 app.get("/api/get-round-scores/:sheetId", async (req, res) => {
   const { sheetId } = req.params;
   try {
-    const auth = await authorize(req.headers['user-agent']);
+    const auth = await authorize(req.headers["user-agent"]);
     const sheets = google.sheets({ version: "v4", auth });
 
     const sheetData = await sheets.spreadsheets.values.get({
@@ -318,10 +298,7 @@ app.get("/api/get-round-scores/:sheetId", async (req, res) => {
 
     res.json({ success: true, scores });
   } catch (error) {
-    console.error("Error getting round scores:", error);
-    res
-      .status(500)
-      .json({ success: false, error: "Failed to get round scores" });
+    res.status(error.status).send(`${error.message}`);
   }
 });
 
@@ -329,7 +306,7 @@ app.get("/api/get-round-scores/:sheetId", async (req, res) => {
 app.post("/api/save-scores-to-rankings", async (req, res) => {
   const { players } = req.body;
   try {
-    const auth = await authorize(req.headers['user-agent']);
+    const auth = await authorize(req.headers["user-agent"]);
     const sheets = google.sheets({ version: "v4", auth });
 
     // Get existing scores from the rankings sheet
@@ -383,10 +360,7 @@ app.post("/api/save-scores-to-rankings", async (req, res) => {
 
     res.json({ success: true });
   } catch (error) {
-    console.error("Error saving scores to rankings:", error);
-    res
-      .status(500)
-      .json({ success: false, error: "Failed to save scores to rankings" });
+    res.status(error.status).send(`${error.message}`);
   }
 });
 
@@ -394,7 +368,7 @@ app.post("/api/save-scores-to-rankings", async (req, res) => {
 app.get("/api/get-last-5-rounds/:sheetId", async (req, res) => {
   const { sheetId } = req.params;
   try {
-    const auth = await authorize(req.headers['user-agent']);
+    const auth = await authorize(req.headers["user-agent"]);
     const sheets = google.sheets({ version: "v4", auth });
 
     const sheetData = await sheets.spreadsheets.values.get({
@@ -406,10 +380,7 @@ app.get("/api/get-last-5-rounds/:sheetId", async (req, res) => {
 
     res.json({ success: true, rounds });
   } catch (error) {
-    console.error("Error getting last 5 rounds:", error);
-    res
-      .status(500)
-      .json({ success: false, error: "Failed to get last 5 rounds" });
+    res.status(error.status).send(`${error.message}`);
   }
 });
 
@@ -417,7 +388,7 @@ app.get("/api/get-last-5-rounds/:sheetId", async (req, res) => {
 app.post("/api/replace-last-5-rounds", async (req, res) => {
   const { sheetId, rounds } = req.body;
   try {
-    const auth = await authorize(req.headers['user-agent']);
+    const auth = await authorize(req.headers["user-agent"]);
     const sheets = google.sheets({ version: "v4", auth });
 
     const range = `${await getSheetNameById(auth, sheetId)}!A1:Z`;
@@ -429,8 +400,14 @@ app.post("/api/replace-last-5-rounds", async (req, res) => {
 
     const lastRowIndex = sheetData.data.values.length;
 
-    if(rounds.length > (lastRowIndex - 2)) {
-      res.status(400).json({ success: false, error: "Number of rounds is greater than the number of rounds in the sheet" });
+    if (rounds.length > lastRowIndex - 2) {
+      res
+        .status(400)
+        .json({
+          success: false,
+          error:
+            "Number of rounds is greater than the number of rounds in the sheet",
+        });
       return;
     }
 
@@ -441,7 +418,9 @@ app.post("/api/replace-last-5-rounds", async (req, res) => {
     }, 0);
 
     if (sumOfRounds !== 0) {
-      res.status(400).json({ success: false, error: "Gà đéo khớp, kiểm tra lại" });
+      res
+        .status(400)
+        .json({ success: false, error: "Gà đéo khớp, kiểm tra lại" });
       return;
     }
 
@@ -452,11 +431,11 @@ app.post("/api/replace-last-5-rounds", async (req, res) => {
 
     // Fill the rounds
     for (let i = 0; i < rounds.length; i++) {
-
-
       await sheets.spreadsheets.values.update({
         spreadsheetId,
-        range: `${await getSheetNameById(auth, sheetId)}!A${startRowNeedClear + i}:Z`,
+        range: `${await getSheetNameById(auth, sheetId)}!A${
+          startRowNeedClear + i
+        }:Z`,
         valueInputOption: "USER_ENTERED",
         resource: {
           values: [rounds[i]],
@@ -466,10 +445,7 @@ app.post("/api/replace-last-5-rounds", async (req, res) => {
 
     res.json({ success: true });
   } catch (error) {
-    console.error("Error replacing last 5 rounds:", error);
-    res
-      .status(500)
-      .json({ success: false, error: "Failed to replace last 5 rounds" });
+    res.status(error.status).send(`${error.message}`);
   }
 });
 
@@ -477,7 +453,7 @@ app.post("/api/replace-last-5-rounds", async (req, res) => {
 app.get("/api/get-result-of-sheet/:sheetId", async (req, res) => {
   const { sheetId } = req.params;
   try {
-    const auth = await authorize(req.headers['user-agent']);
+    const auth = await authorize(req.headers["user-agent"]);
     const sheets = google.sheets({ version: "v4", auth });
 
     const sheetData = await sheets.spreadsheets.values.get({
@@ -489,14 +465,13 @@ app.get("/api/get-result-of-sheet/:sheetId", async (req, res) => {
 
     const scores = sheetData.data.values[1].map((score) => Number(score));
 
-    const players = names.map((name, index) => new PlayerScoreModel(index, name, scores[index]));
+    const players = names.map(
+      (name, index) => new PlayerScoreModel(index, name, scores[index])
+    );
 
     res.json({ success: true, players });
   } catch (error) {
-    console.error("Error getting list players:", error);
-    res
-      .status(500)
-      .json({ success: false, error: "Failed to get list players" });
+    res.status(error.status).send(`${error.message}`);
   }
 });
 
