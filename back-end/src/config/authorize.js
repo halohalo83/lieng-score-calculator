@@ -50,6 +50,16 @@ async function authorize() {
   return oAuth2Client;
 }
 
+async function logOut() {
+  if (process.env.NODE_ENV === 'production') {
+    delete process.env.GOOGLE_TOKEN;
+  } else {
+    if (fs.existsSync(TOKEN_PATH)) {
+      fs.unlinkSync(TOKEN_PATH);
+    }
+  }
+}
+
 async function visitUrlToAuthorize() {
   const oAuth2Client = await getOAuth2Client();
   const authUrl = oAuth2Client.generateAuthUrl({
@@ -69,4 +79,4 @@ async function getAndSaveToken(oAuth2Client, tokens) {
   }
 }
 
-module.exports = { authorize, visitUrlToAuthorize, getOAuth2Client, getAndSaveToken};
+module.exports = { authorize, logOut, visitUrlToAuthorize, getOAuth2Client, getAndSaveToken};

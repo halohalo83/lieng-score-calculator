@@ -37,6 +37,18 @@ export class ApiService {
     }
   }
 
+  public async logOut() {
+    this.spinner.show();
+    try {
+      const response = await axios.get(`${this.apiUrl}/log-out`);
+      return response.data;
+    } catch (error) {
+      console.error('Error logging out:', error);
+    } finally {
+      this.spinner.hide();
+    }
+  }
+
   public async getAuthUrl() {
     this.spinner.show();
     try {

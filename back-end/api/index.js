@@ -6,6 +6,7 @@ const {
   getOAuth2Client,
   getAndSaveToken,
   visitUrlToAuthorize,
+  logOut
 } = require("../src/config/authorize");
 const app = express();
 app.use(cors());
@@ -47,6 +48,17 @@ app.get("/api/check-auth", async (req, res) => {
   } catch (error) {
     console.error("Error checking auth:", error);
     res.status(500).json({ success: false });
+  }
+});
+
+// Logout route
+app.get("/api/log-out", async (req, res) => {
+  try {
+    await logOut();
+    res.json({ success: true, message: "Logged out successfully" });
+  } catch (error) {
+    console.error("Error logging out:", error);
+    res.status(500).json({ success: false, error: "Failed to log out" });
   }
 });
 

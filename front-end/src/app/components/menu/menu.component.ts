@@ -52,4 +52,10 @@ export class MenuComponent {
   viewGameResult() {
     this.router.navigate(['/view-game-result']);
   }
+
+  logOut() {
+    this.apiService.logOut().then(() => {
+      this.isAuth = false;
+    });
+  }
 }
