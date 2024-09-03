@@ -460,8 +460,8 @@ app.post("/api/replace-last-5-rounds", async (req, res) => {
   }
 });
 
-// get list name of players in a sheet route
-app.get("/api/get-list-players/:sheetId", async (req, res) => {
+// get result of sheet in a sheet route
+app.get("/api/get-result-of-sheet/:sheetId", async (req, res) => {
   const { sheetId } = req.params;
   try {
     const auth = await authorize();
@@ -472,7 +472,11 @@ app.get("/api/get-list-players/:sheetId", async (req, res) => {
       range: `${await getSheetNameById(auth, sheetId)}!A1:Z`,
     });
 
-    const players = sheetData.data.values[0].slice(1);
+    const names = sheetData.data.values[0].map((name) => String(name));
+
+    const scores = sheetData.data.values[1].map((score) => Number(score));
+
+    const players = names.map((name, index) => new PlayerScoreModel(index, name, scores[index]));
 
     res.json({ success: true, players });
   } catch (error) {

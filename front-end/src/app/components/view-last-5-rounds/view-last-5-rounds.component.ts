@@ -56,14 +56,12 @@ export class ViewLast5RoundsComponent {
     this.players = this.gameService
       .getParticipants()
       .map((player) => player.name);
-    console.log(this.players, 'players');
   }
 
   getRoundScores() {
     this.apiService.getLast5Rounds().then((response) => {
       this.roundScores = response.rounds
       .map((round: string[]) => round.map(item => parseInt(item)));
-      console.log(this.roundScores, 'roundScores');
     });
   }
 

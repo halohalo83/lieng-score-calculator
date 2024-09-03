@@ -252,15 +252,15 @@ export class ApiService {
     }
   }
 
-  public async getListPlayers(sheetId: number) {
+  public async getResultOfSheet(sheetId: number) {
     this.spinner.show();
     try {
       const response = await axios.get(
-        `${this.apiUrl}/get-list-players/${sheetId}`
+        `${this.apiUrl}/get-result-of-sheet/${sheetId}`
       );
       return response.data;
     } catch (error) {
-      console.error('Error getting list players:', error);
+      console.error('Error getting result of sheet:', error);
       throw error;
     } finally {
       this.spinner.hide();

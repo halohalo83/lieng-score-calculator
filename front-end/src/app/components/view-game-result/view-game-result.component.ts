@@ -95,10 +95,17 @@ export class ViewGameResultComponent {
       return;
     }
 
-    this.apiService.getRoundScores(sheetId).then((response) => {
+    this.apiService.getResultOfSheet(sheetId).then((response) => {
       if (response.success) {
-        this.roundScores = response.scores;
-        this.getPlayers();
+        this.players = response.players.map((player: PlayerScoreModel) => {
+          return {
+            rank: this.getRanking(player.score, response.players.map((p: PlayerScoreModel) => p.score)),
+            name: player.name,
+            score: player.score,
+          } as PlayerRanking;
+        });
+
+        this.players = this.players.sort((a, b) => a.rank - b.rank);
       }
       else {
         this.players = [];
@@ -110,37 +117,9 @@ export class ViewGameResultComponent {
     });
   }
 
-  getPlayers() {
-    // this.players = this.gameService.getParticipants().map((player, index) => {
-    //   return {
-    //     rank: this.getRanking(this.roundScores[index]),
-    //     id: player.id,
-    //     name: player.name,
-    //     score: this.roundScores[index],
-    //   } as PlayerRanking;
-    // });
-
-    // this.players.sort((a, b) => a.rank - b.rank);
-
-    this.apiService.getListPlayers(this.form.get('selectedSheetId')?.value).then((response) => {
-      if (response.success) {
-        this.players = response.players.map((player: PlayerScoreModel, index) => {
-          return {
-            rank: this.getRanking(this.roundScores[index]),
-            id: player.id,
-            name: player.name,
-            score: this.roundScores[index],
-          } as PlayerRanking;
-        });
-        this.players.sort((a, b) => a.rank - b.rank);
-      }
-    });
-
-  }
-
-  getRanking(score: Number) {
+  getRanking(score: Number, roundScores: Number[]) {
     // arrange the scores in descending order
-    let scores = this.roundScores.slice().sort((a, b) => b - a);
+    let scores = roundScores.slice().sort((a, b) => Number(b) - Number(a));
 
     return indexOf(scores, score) + 1;
   }
