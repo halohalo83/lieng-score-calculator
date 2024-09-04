@@ -31,10 +31,7 @@ export class MenuComponent {
 
   redirectToAuthUrl() {
     this.apiService.getAuthUrl().then((response) => {
-      const anchor = document.createElement('a');
-      anchor.href = response.authUrl;
-      anchor.target = '_blank';
-      anchor.click();
+      window.open(response.authUrl, '_self');
     });
   }
 

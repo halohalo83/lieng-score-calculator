@@ -32,7 +32,9 @@ app.get("/oauth2callback", async (req, res) => {
     const { tokens } = await oAuth2Client.getToken(code);
 
     await getAndSaveToken(oAuth2Client, tokens, deviceInfo);
-    res.send("Authorization successful!");
+
+    res.redirect(process.env.HOME_URI);
+
   } catch (error) {
     res.status(error.status).send(`${error.message}`);
   }
