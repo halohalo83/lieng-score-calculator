@@ -17,7 +17,7 @@
     </thead>
     <tbody>
       <tr *ngFor="let data of basicTable.data">
-        <td><app-flip-card [disabled]="isRoundFinished" [(ngModel)]="data.isPositive"></app-flip-card></td>
+        <td><app-flip-card [disabled]="isRoundFinished" [(ngModel)]="data.isPositive" (click)="autoCalculate(data)"></app-flip-card></td>
         <td>{{ data.name }}</td>
         <td>
           <nz-input-number

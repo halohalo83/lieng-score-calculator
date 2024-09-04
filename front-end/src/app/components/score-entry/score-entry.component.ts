@@ -159,9 +159,9 @@ export class ScoreEntryComponent {
   }
 
   autoCalculate(data: PlayerScoreViewModel) {
-    if (data.isPositive) {
-      return;
-    } else {
+    // if (data.isPositive) {
+    //   return;
+    // } else {
       var totalChicken = this.players
         .filter((x) => !x.isPositive)
         .reduce((acc, x) => acc + x.score, 0);
@@ -171,7 +171,7 @@ export class ScoreEntryComponent {
         ...player,
         score: player.isPositive ? chickenPerPlayer : player.score,
       }));
-    }
+    // }
   }
 
   autoCalculateDebounced = debounce((data: PlayerScoreViewModel) => {
