@@ -3,10 +3,7 @@ import axios from 'axios';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { environment } from '../environments/environment';
 import { GameService } from './game-service.service';
-import {
-  PlayerModel,
-  PlayerScoreModel
-} from './models/player.model';
+import { PlayerModel, PlayerScoreModel } from './models/player.model';
 
 @Injectable({
   providedIn: 'root',
@@ -84,7 +81,7 @@ export class ApiService {
           sheetId: this.gameService.getSelectedSheet(),
           players: this.gameService
             .getParticipants()
-            .map((x) => ({ id: x.id, name: x.name } as PlayerModel))
+            .map((x) => ({ id: x.id, name: x.name } as PlayerModel)),
         }
       );
       return response.data;
@@ -234,7 +231,9 @@ export class ApiService {
     this.spinner.show();
     try {
       const response = await axios.get(
-        `${this.apiUrl}/get-last-5-rounds/${this.gameService.getSelectedSheet()}`
+        `${
+          this.apiUrl
+        }/get-last-5-rounds/${this.gameService.getSelectedSheet()}`
       );
       return response.data;
     } catch (error) {
@@ -276,6 +275,21 @@ export class ApiService {
       throw error;
     } finally {
       this.spinner.hide();
+    }
+  }
+
+  public async getTheLastRound(sheetId: number) {
+    this.spinner.show();
+    try {
+      const response = await axios.get(
+        `${this.apiUrl}/get-last-round/${sheetId}`
+      );
+      return response.data;
+    } catch (error) {
+      console.error('Error getting the last round:', error);
+      throw error;
+    } finally {
+      this.spinner;
     }
   }
 }

@@ -41,11 +41,13 @@ export class ViewGameResultComponent {
   sheets: SheetModel[] = [];
   players: PlayerRanking[] = [];
   roundScores: number[] = [];
+  lastRoundScores: number[] = [];
+  participants: string[] = [];
   constructor(
     private router: Router,
     private gameService: GameService,
     private apiService: ApiService,
-    private fb: FormBuilder,
+    private fb: FormBuilder
   ) {}
 
   get f() {
@@ -64,7 +66,12 @@ export class ViewGameResultComponent {
     if (response.success) {
       this.isAuth = true;
       this.getAllSheets();
+      this.getAllParticipants();
     }
+  }
+
+  getAllParticipants() {
+    this.participants = this.gameService.getParticipants().map((p) => p.name);
   }
 
   async getAllSheets() {
@@ -84,37 +91,42 @@ export class ViewGameResultComponent {
 
   refresh() {
     this.getAllSheets();
-    if(this.form.get('selectedSheetId')?.value) {
+    if (this.form.get('selectedSheetId')?.value) {
       this.viewResult();
     }
   }
 
   viewResult() {
     const sheetId = this.form.get('selectedSheetId')?.value;
-    if(!sheetId) {
+    if (!sheetId) {
       return;
     }
+    this.getLastRoundScores(sheetId);
 
-    this.apiService.getResultOfSheet(sheetId).then((response) => {
-      if (response.success) {
-        this.players = response.players.map((player: PlayerScoreModel) => {
-          return {
-            rank: this.getRanking(player.score, response.players.map((p: PlayerScoreModel) => p.score)),
-            name: player.name,
-            score: player.score,
-          } as PlayerRanking;
-        });
+    this.apiService.getResultOfSheet(sheetId).then(
+      (response) => {
+        if (response.success) {
+          this.players = response.players.map((player: PlayerScoreModel) => {
 
-        this.players = this.players.sort((a, b) => a.rank - b.rank);
-      }
-      else {
+            return {
+              rank: this.getRanking(
+                player.score,
+                response.players.map((p: PlayerScoreModel) => p.score)
+              ),
+              name: player.name,
+              score: player.score,
+            } as PlayerRanking;
+          });
+          this.players = this.players.sort((a, b) => a.rank - b.rank);
+        } else {
+          this.players = [];
+        }
+      },
+      (error) => {
+        console.error('Error getting round scores:', error);
         this.players = [];
       }
-    },
-    (error) => {
-      console.error('Error getting round scores:', error);
-      this.players = [];
-    });
+    );
   }
 
   getRanking(score: Number, roundScores: Number[]) {
@@ -122,5 +134,21 @@ export class ViewGameResultComponent {
     let scores = roundScores.slice().sort((a, b) => Number(b) - Number(a));
 
     return indexOf(scores, score) + 1;
+  }
+
+  getLastRoundScores(sheetId: number) {
+    this.apiService.getTheLastRound(sheetId).then(
+      (response) => {
+        if (response.success) {
+          this.lastRoundScores = response.round.map(Number);
+        } else {
+          this.lastRoundScores = [];
+        }
+      },
+      (error) => {
+        console.error('Error getting last round scores:', error);
+        this.lastRoundScores = [];
+      }
+    );
   }
 }

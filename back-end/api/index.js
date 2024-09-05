@@ -388,6 +388,28 @@ app.get("/api/get-last-5-rounds/:sheetId", async (req, res) => {
   }
 });
 
+// get the last round by sheetId route
+app.get("/api/get-last-round/:sheetId", async (req, res) => {
+  const { sheetId } = req.params;
+  try {
+    const auth = await authorize();
+    const sheets = google.sheets({ version: "v4", auth });
+
+    const sheetData = await sheets.spreadsheets.values.get({
+      spreadsheetId,
+      range: `${await getSheetNameById(auth, sheetId)}!A1:Z`,
+    });
+
+    const lastRowIndex = sheetData.data.values.length;
+
+    const round = sheetData.data.values[lastRowIndex - 1];
+
+    res.json({ success: true, round });
+  } catch (error) {
+    res.status(error.status).send(`${error.message}`);
+  }
+});
+
 // replace the last 5 rounds by sheetId route
 app.post("/api/replace-last-5-rounds", async (req, res) => {
   const { sheetId, rounds } = req.body;

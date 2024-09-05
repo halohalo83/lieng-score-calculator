@@ -27,6 +27,31 @@
           </tbody>
         </nz-table>
       </nz-col>
+      <nz-col nzSpan="24">
+        <nz-table
+          class="mb-3"
+          [nzTemplateMode]="true"
+          [nzFrontPagination]="false"
+          [nzShowPagination]="false"
+          [nzScroll]="{ x: '100px', y: '500px' }"
+          nzBordered
+        >
+          <thead>
+            <tr>
+              <th [nzWidth]="'120px'" *ngFor="let participant of participants">
+                {{ participant }}
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td *ngFor="let round of lastRoundScores">
+                {{ round }}
+              </td>
+            </tr>
+          </tbody>
+        </nz-table>
+      </nz-col>
       <nz-col nzSpan="12">
         <nz-select
           class="form-control"
