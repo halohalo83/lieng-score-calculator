@@ -17,10 +17,16 @@
     </thead>
     <tbody>
       <tr *ngFor="let data of basicTable.data">
-        <td><app-flip-card [disabled]="isRoundFinished" [(ngModel)]="data.isPositive" (click)="autoCalculate(data)"></app-flip-card></td>
+        <td>
+          <app-flip-card
+            [disabled]="isRoundFinished"
+            [(ngModel)]="data.isPositive"
+            (click)="autoCalculate(data)"
+          ></app-flip-card>
+        </td>
         <td>{{ data.name }}</td>
         <td>
-          <nz-input-number
+          <!-- <nz-input-number
             [nzSize]="'large'"
             [nzMin]="0"
             type="number"
@@ -29,9 +35,26 @@
             nzPlaceHolder="Bú"
             [nzDisabled]="isRoundFinished"
             (ngModelChange)="autoCalculateDebounced(data)"
-          ></nz-input-number>
+          ></nz-input-number> -->
+          <input
+            [min]="0"
+            nz-input
+            type="number"
+            inputmode="numeric"
+            [(ngModel)]="data.score"
+            placeholder="Bú"
+            [disabled]="isRoundFinished"
+            (ngModelChange)="autoCalculateDebounced(data)"
+            (focus)="selectAll($event)"
+          />
         </td>
-        <td nzAlign="center"><nz-switch [disabled]="(haveWinner && !data.isWinner) || isRoundFinished" [(ngModel)]="data.isWinner" (ngModelChange)="chooseWinner(data)"></nz-switch></td>
+        <td nzAlign="center">
+          <nz-switch
+            [disabled]="(haveWinner && !data.isWinner) || isRoundFinished"
+            [(ngModel)]="data.isWinner"
+            (ngModelChange)="chooseWinner(data)"
+          ></nz-switch>
+        </td>
       </tr>
     </tbody>
   </nz-table>

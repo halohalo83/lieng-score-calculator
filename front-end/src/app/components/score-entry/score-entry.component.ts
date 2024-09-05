@@ -17,6 +17,7 @@ import { ApiService } from '../../api.service';
 import { NzModalModule, NzModalService } from 'ng-zorro-antd/modal';
 import { NzSwitchModule } from 'ng-zorro-antd/switch';
 import { debounce } from 'lodash';
+import { NzInputModule } from 'ng-zorro-antd/input';
 @Component({
   selector: 'app-score-entry',
   standalone: true,
@@ -31,6 +32,7 @@ import { debounce } from 'lodash';
     FlipCardComponent,
     NzModalModule,
     NzSwitchModule,
+    NzInputModule
   ],
   templateUrl: './score-entry.component.html',
   styleUrl: './score-entry.component.scss',
@@ -222,5 +224,9 @@ export class ScoreEntryComponent {
 
   viewLast5Rounds() {
     this.router.navigate(['/view-last-5-rounds']);
+  }
+
+  selectAll($event: FocusEvent) {
+    ($event.target as HTMLInputElement).select();
   }
 }
