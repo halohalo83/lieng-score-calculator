@@ -1,5 +1,6 @@
 const express = require("express");
 const cors = require("cors");
+require('dotenv').config();
 const { google } = require("googleapis");
 const {
   authorize,
@@ -26,13 +27,14 @@ const PlayerRankingModel = require("../src/models/player-ranking-model");
 // OAuth2 callback route
 app.get("/oauth2callback", async (req, res) => {
   const code = req.query.code;
-  const deviceInfo = req.headers["user-agent"];
   try {
     const oAuth2Client = await getOAuth2Client();
     const { tokens } = await oAuth2Client.getToken(code);
 
-    await getAndSaveToken(oAuth2Client, tokens, deviceInfo);
+    await getAndSaveToken(oAuth2Client, tokens);
 
+    console.log(process.env.HOME_URI, "home uri");
+    
     res.redirect(process.env.HOME_URI);
 
   } catch (error) {
@@ -43,7 +45,7 @@ app.get("/oauth2callback", async (req, res) => {
 // Check auth route
 app.get("/api/check-auth", async (req, res) => {
   try {
-    const auth = await authorize(req.headers["user-agent"]);
+    const auth = await authorize();
     var isExpired = auth.isTokenExpiring();
     res.json({
       success: auth?.credentials?.access_token !== undefined && !isExpired,
@@ -77,7 +79,7 @@ app.get("/api/get-auth-url", async (req, res) => {
 // Get all sheets route
 app.get("/api/get-all-sheets", async (req, res) => {
   try {
-    const auth = await authorize(req.headers["user-agent"]);
+    const auth = await authorize();
 
     const result = await getAllSheets(auth, spreadsheetId);
 
@@ -90,7 +92,7 @@ app.get("/api/get-all-sheets", async (req, res) => {
 // Get all players route
 app.get("/api/get-all-players", async (req, res) => {
   try {
-    const auth = await authorize(req.headers["user-agent"]);
+    const auth = await authorize();
     const sheets = google.sheets({ version: "v4", auth });
 
     const sheetData = await sheets.spreadsheets.values.get({
@@ -111,7 +113,7 @@ app.get("/api/get-all-players", async (req, res) => {
 // Get all rankings route
 app.get("/api/get-rankings", async (req, res) => {
   try {
-    const auth = await authorize(req.headers["user-agent"]);
+    const auth = await authorize();
     const sheets = google.sheets({ version: "v4", auth });
 
     const sheetData = await sheets.spreadsheets.values.get({
@@ -132,7 +134,7 @@ app.get("/api/get-rankings", async (req, res) => {
 // Auto generate sheet
 app.post("/api/create-sheet", async (req, res) => {
   try {
-    const auth = await authorize(req.headers["user-agent"]);
+    const auth = await authorize();
     const sheetName = await createSheet(auth, spreadsheetId);
 
     res.json({ success: true, sheetName });
@@ -146,7 +148,7 @@ app.post("/api/create-sheet", async (req, res) => {
 app.delete("/api/delete-sheet/:sheetId", async (req, res) => {
   const { sheetId } = req.params;
   try {
-    const auth = await authorize(req.headers["user-agent"]);
+    const auth = await authorize();
     await deleteSheet(auth, spreadsheetId, Number(sheetId));
 
     res.json({ success: true });
@@ -160,7 +162,7 @@ app.post("/api/config-selected-sheet", async (req, res) => {
   const { sheetId, players } = req.body;
 
   try {
-    const auth = await authorize(req.headers["user-agent"]);
+    const auth = await authorize();
     await configSelectedSheet(auth, sheetId, players);
 
     res.json({ success: true });
@@ -174,7 +176,7 @@ app.post("/api/save-score", async (req, res) => {
   // req.body will have sheetId, list of playerModel
   const { sheetId, players } = req.body;
   try {
-    const auth = await authorize(req.headers["user-agent"]);
+    const auth = await authorize();
     const sheets = google.sheets({ version: "v4", auth });
 
     // Save score to rankings sheet
@@ -220,7 +222,7 @@ app.post("/api/fill-round-scores", async (req, res) => {
   const { sheetId, players, initialScore } = req.body;
 
   try {
-    const auth = await authorize(req.headers["user-agent"]);
+    const auth = await authorize();
     const sheets = google.sheets({ version: "v4", auth });
 
     // find the last row of the sheet
@@ -261,7 +263,7 @@ app.post("/api/fill-round-scores", async (req, res) => {
 app.delete("/api/delete-last-round/:sheetId", async (req, res) => {
   const { sheetId } = req.params;
   try {
-    const auth = await authorize(req.headers["user-agent"]);
+    const auth = await authorize();
     const sheets = google.sheets({ version: "v4", auth });
 
     const sheetData = await sheets.spreadsheets.values.get({
@@ -288,7 +290,7 @@ app.delete("/api/delete-last-round/:sheetId", async (req, res) => {
 app.get("/api/get-round-scores/:sheetId", async (req, res) => {
   const { sheetId } = req.params;
   try {
-    const auth = await authorize(req.headers["user-agent"]);
+    const auth = await authorize();
     const sheets = google.sheets({ version: "v4", auth });
 
     const sheetData = await sheets.spreadsheets.values.get({
@@ -308,7 +310,7 @@ app.get("/api/get-round-scores/:sheetId", async (req, res) => {
 app.post("/api/save-scores-to-rankings", async (req, res) => {
   const { players } = req.body;
   try {
-    const auth = await authorize(req.headers["user-agent"]);
+    const auth = await authorize();
     const sheets = google.sheets({ version: "v4", auth });
 
     // Get existing scores from the rankings sheet
@@ -370,7 +372,7 @@ app.post("/api/save-scores-to-rankings", async (req, res) => {
 app.get("/api/get-last-5-rounds/:sheetId", async (req, res) => {
   const { sheetId } = req.params;
   try {
-    const auth = await authorize(req.headers["user-agent"]);
+    const auth = await authorize();
     const sheets = google.sheets({ version: "v4", auth });
 
     const sheetData = await sheets.spreadsheets.values.get({
@@ -390,7 +392,7 @@ app.get("/api/get-last-5-rounds/:sheetId", async (req, res) => {
 app.post("/api/replace-last-5-rounds", async (req, res) => {
   const { sheetId, rounds } = req.body;
   try {
-    const auth = await authorize(req.headers["user-agent"]);
+    const auth = await authorize();
     const sheets = google.sheets({ version: "v4", auth });
 
     const range = `${await getSheetNameById(auth, sheetId)}!A1:Z`;
@@ -455,7 +457,7 @@ app.post("/api/replace-last-5-rounds", async (req, res) => {
 app.get("/api/get-result-of-sheet/:sheetId", async (req, res) => {
   const { sheetId } = req.params;
   try {
-    const auth = await authorize(req.headers["user-agent"]);
+    const auth = await authorize();
     const sheets = google.sheets({ version: "v4", auth });
 
     const sheetData = await sheets.spreadsheets.values.get({

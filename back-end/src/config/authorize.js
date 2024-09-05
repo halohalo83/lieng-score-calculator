@@ -15,39 +15,32 @@ async function getOAuth2Client() {
   return new google.auth.OAuth2(client_id, client_secret, redirect_uris);
 }
 
-async function authorize(deviceInfoInput) {
+async function authorize() {
   const oAuth2Client = await getOAuth2Client();
 
   // Check if we have previously stored a token.
-  let tokenData;
+  let token;
   if (process.env.NODE_ENV === 'production') {
-    tokenData = process.env.GOOGLE_TOKEN; // Use environment variable for token in production
-    if (!tokenData) {
+    token = process.env.GOOGLE_TOKEN; // Use environment variable for token in production
+    if (!token) {
       throw new Error("Missing required environment variable: 'GOOGLE_TOKEN'");
     }
   } else {
     if (fs.existsSync(TOKEN_PATH)) {
-      tokenData = fs.readFileSync(TOKEN_PATH, 'utf8'); // Read token from file in development
+      token = fs.readFileSync(TOKEN_PATH, 'utf8'); // Read token from file in development
     }
   }
 
-  if (tokenData) {
-    tokenData = JSON.parse(tokenData);
-    const { tokens, deviceInfo } = tokenData;
-
-    // Check if device information matches
-    if (deviceInfo !== deviceInfoInput) {
-      throw new Error('Device mismatch. Re-authentication required.');
-    }
-
-    oAuth2Client.setCredentials(tokens);
+  if (token) {
+    oAuth2Client.setCredentials(JSON.parse(token));
 
     // Check if token is expired
     if (oAuth2Client.isTokenExpiring()) {
       try {
         const newToken = await oAuth2Client.refreshAccessToken();
         oAuth2Client.setCredentials(newToken.credentials);
-        await getAndSaveToken(oAuth2Client, newToken.credentials, deviceInfo);
+        await getAndSaveToken(oAuth2Client, newToken.credentials);
+
       } catch (error) {
         throw new Error('Error refreshing access token: ' + error.message);
       }
@@ -76,14 +69,12 @@ async function visitUrlToAuthorize() {
   return authUrl;
 }
 
-async function getAndSaveToken(oAuth2Client, tokens, deviceInfo) {
+async function getAndSaveToken(oAuth2Client, tokens) {
   oAuth2Client.setCredentials(tokens);
-  const tokenData = { tokens, deviceInfo };
-  
   if (process.env.NODE_ENV === 'production') {
-    process.env.GOOGLE_TOKEN = JSON.stringify(tokenData); // Save token to environment variable in production
+    process.env.GOOGLE_TOKEN = JSON.stringify(tokens); // Save token to environment variable in production
   } else {
-    fs.writeFileSync(TOKEN_PATH, JSON.stringify(tokenData)); // Save token to file in development
+    fs.writeFileSync(TOKEN_PATH, JSON.stringify(tokens)); // Save token to file in development
   }
 }
 

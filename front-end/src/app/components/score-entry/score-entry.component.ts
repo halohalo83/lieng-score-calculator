@@ -91,19 +91,21 @@ export class ScoreEntryComponent {
     this.modal.confirm({
       nzTitle: 'Xóa vòng này ?',
       nzOnOk: () => {
-        this.apiService.deleteTheLastRound().then((response) => {
-          if (response.success) {
-            this.clear();
+        this.apiService.deleteTheLastRound().then(
+          (response) => {
+            if (response.success) {
+              this.clear();
+            }
+          },
+          (error) => {
+            if (error.status === 403) {
+              this.modal.error({
+                nzTitle: 'Lỗi',
+                nzContent: 'Bạn đéo có quyền thao tác',
+              });
+            }
           }
-        },
-        (error) => {
-          if(error.status === 403) {
-            this.modal.error({
-              nzTitle: 'Lỗi',
-              nzContent: 'Bạn đéo có quyền thao tác',
-            });
-          }
-        });
+        );
       },
       nzOkText: 'Xóa',
       nzCancelText: 'Đéo',
@@ -159,19 +161,15 @@ export class ScoreEntryComponent {
   }
 
   autoCalculate(data: PlayerScoreViewModel) {
-    // if (data.isPositive) {
-    //   return;
-    // } else {
-      var totalChicken = this.players
-        .filter((x) => !x.isPositive)
-        .reduce((acc, x) => acc + x.score, 0);
-      var positivePlayers = this.players.filter((x) => x.isPositive);
-      var chickenPerPlayer = totalChicken / positivePlayers.length;
-      this.players = this.players.map((player) => ({
-        ...player,
-        score: player.isPositive ? chickenPerPlayer : player.score,
-      }));
-    // }
+    var totalChicken = this.players
+      .filter((x) => !x.isPositive)
+      .reduce((acc, x) => acc + x.score, 0);
+    var positivePlayers = this.players.filter((x) => x.isPositive);
+    var chickenPerPlayer = totalChicken / positivePlayers.length;
+    this.players = this.players.map((player) => ({
+      ...player,
+      score: player.isPositive ? chickenPerPlayer : player.score,
+    }));
   }
 
   autoCalculateDebounced = debounce((data: PlayerScoreViewModel) => {
@@ -203,7 +201,7 @@ export class ScoreEntryComponent {
           }
         },
         (error) => {
-          if(error.status === 403) {
+          if (error.status === 403) {
             this.modal.error({
               nzTitle: 'Lỗi',
               nzContent: 'Bạn đéo có quyền thao tác',
