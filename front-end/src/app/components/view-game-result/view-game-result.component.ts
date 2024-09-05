@@ -7,17 +7,16 @@ import {
   Validators,
 } from '@angular/forms';
 import { Router } from '@angular/router';
+import { indexOf } from 'lodash';
 import { NzButtonComponent } from 'ng-zorro-antd/button';
 import { NzGridModule } from 'ng-zorro-antd/grid';
-import { NzModalService } from 'ng-zorro-antd/modal';
 import { NzOptionComponent, NzSelectComponent } from 'ng-zorro-antd/select';
 import { NzTableModule } from 'ng-zorro-antd/table';
 import { NgxSpinnerModule } from 'ngx-spinner';
 import { ApiService } from '../../api.service';
 import { GameService } from '../../game-service.service';
-import { SheetModel } from '../../models/sheet.model';
 import { PlayerRanking, PlayerScoreModel } from '../../models/player.model';
-import { indexOf } from 'lodash';
+import { SheetModel } from '../../models/sheet.model';
 
 @Component({
   selector: 'app-view-game-result',
@@ -79,6 +78,15 @@ export class ViewGameResultComponent {
       const response = await this.apiService.getAllSheets();
       if (response.success) {
         this.sheets = response.result;
+
+        if (this.sheets.length > 0) {
+          this.form
+            .get('selectedSheetId')
+            ?.setValue(this.sheets[this.sheets.length - 1].sheetId);
+            this.viewResult();
+        } else {
+          this.form.get('selectedSheetId')?.setValue(null);
+        }
       }
     } catch (error) {
       console.error('Error getting all sheets:', error);
@@ -106,7 +114,7 @@ export class ViewGameResultComponent {
     this.apiService.getResultOfSheet(sheetId).then(
       (response) => {
         if (response.success) {
-          this.players = response.players.map((player: PlayerScoreModel) => {
+          this.players = response.players.map((player: PlayerScoreModel, index: Number) => {
 
             return {
               rank: this.getRanking(

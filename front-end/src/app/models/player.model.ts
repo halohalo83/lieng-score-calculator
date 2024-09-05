@@ -26,7 +26,6 @@ export interface PlayerScoreModel {
   name: string;
   score: number;
 }
-
 export interface PlayerScoreViewModel {
   id: number;
   name: string;

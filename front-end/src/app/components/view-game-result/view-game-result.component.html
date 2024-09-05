@@ -1,14 +1,14 @@
 <div class="container">
-  <form [formGroup]="form">
-    <nz-row [nzGutter]="[16, 16]">
+  <form [formGroup]="form" class="w-100">
+    <nz-row [nzGutter]="[16, 16]" class="w-100">
       <nz-col nzSpan="24">
         <nz-table
-          class="mb-3"
+          class="mb-3 w-100"
           #basicTable
           [nzData]="players"
           [nzFrontPagination]="false"
           [nzShowPagination]="false"
-          [nzScroll]="{ y: '500px' }"
+          [nzScroll]="{ x: '100px', y: '500px' }"
           nzBordered
         >
           <thead>
@@ -27,9 +27,9 @@
           </tbody>
         </nz-table>
       </nz-col>
-      <nz-col nzSpan="24">
+      <nz-col nzSpan="24" >
         <nz-table
-          class="mb-3"
+          class="mb-3 w-100"
           [nzTemplateMode]="true"
           [nzFrontPagination]="false"
           [nzShowPagination]="false"
