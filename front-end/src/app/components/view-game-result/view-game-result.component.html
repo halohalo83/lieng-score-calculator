@@ -38,15 +38,15 @@
         >
           <thead>
             <tr>
-              <th [nzWidth]="'120px'" *ngFor="let participant of participants">
-                {{ participant }}
+              <th [nzWidth]="'120px'" *ngFor="let lastRound of lastRounds">
+                {{ lastRound.name }}
               </th>
             </tr>
           </thead>
           <tbody>
             <tr>
-              <td *ngFor="let round of lastRoundScores">
-                {{ round }}
+              <td *ngFor="let lastRound of lastRounds">
+                {{ lastRound.score }}
               </td>
             </tr>
           </tbody>

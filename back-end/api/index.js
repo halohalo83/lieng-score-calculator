@@ -402,9 +402,15 @@ app.get("/api/get-last-round/:sheetId", async (req, res) => {
 
     const lastRowIndex = sheetData.data.values.length;
 
-    const round = sheetData.data.values[lastRowIndex - 1];
+    const name = sheetData.data.values[0];
+    const rounds = sheetData.data.values[lastRowIndex - 1];
 
-    res.json({ success: true, round });
+    const result = name.map((name, index) => ({
+      name,
+      score: rounds[index],
+    }));
+
+    res.json({ success: true, result });
   } catch (error) {
     res.status(error.status).send(`${error.message}`);
   }

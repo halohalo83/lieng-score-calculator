@@ -40,7 +40,7 @@ export class ViewGameResultComponent {
   sheets: SheetModel[] = [];
   players: PlayerRanking[] = [];
   roundScores: number[] = [];
-  lastRoundScores: number[] = [];
+  lastRounds: PlayerScoreModel[] = [];
   participants: string[] = [];
   constructor(
     private router: Router,
@@ -148,14 +148,19 @@ export class ViewGameResultComponent {
     this.apiService.getTheLastRound(sheetId).then(
       (response) => {
         if (response.success) {
-          this.lastRoundScores = response.round.map(Number);
+          this.lastRounds = response.result.map((player: PlayerScoreModel) => {
+            return {
+              name: player.name,
+              score: player.score,
+            } as PlayerScoreModel;
+          });
         } else {
-          this.lastRoundScores = [];
+          this.lastRounds = [];
         }
       },
       (error) => {
         console.error('Error getting last round scores:', error);
-        this.lastRoundScores = [];
+        this.lastRounds = [];
       }
     );
   }
