@@ -83,7 +83,7 @@ export class ViewGameResultComponent {
           this.form
             .get('selectedSheetId')
             ?.setValue(this.sheets[this.sheets.length - 1].sheetId);
-            this.viewResult();
+          this.viewResult();
         } else {
           this.form.get('selectedSheetId')?.setValue(null);
         }
@@ -109,23 +109,24 @@ export class ViewGameResultComponent {
     if (!sheetId) {
       return;
     }
-    this.getLastRoundScores(sheetId);
 
     this.apiService.getResultOfSheet(sheetId).then(
       (response) => {
         if (response.success) {
-          this.players = response.players.map((player: PlayerScoreModel, index: Number) => {
-
-            return {
-              rank: this.getRanking(
-                player.score,
-                response.players.map((p: PlayerScoreModel) => p.score)
-              ),
-              name: player.name,
-              score: player.score,
-            } as PlayerRanking;
-          });
+          this.players = response.players.map(
+            (player: PlayerScoreModel, index: Number) => {
+              return {
+                rank: this.getRanking(
+                  player.score,
+                  response.players.map((p: PlayerScoreModel) => p.score)
+                ),
+                name: player.name,
+                score: player.score,
+              } as PlayerRanking;
+            }
+          );
           this.players = this.players.sort((a, b) => a.rank - b.rank);
+          this.getLastRoundScores(sheetId);
         } else {
           this.players = [];
         }

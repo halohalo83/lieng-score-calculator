@@ -102,6 +102,10 @@ export class ResultComponent {
         if (response.success) {
           this.isSaved = true;
           this.gameService.setSavedToRankings(true);
+          this.modal.success({
+            nzTitle: 'Cập nhật thành công',
+            nzContent: 'Kết quả đã được lưu!'
+          });
         }
       },
       (error) => {

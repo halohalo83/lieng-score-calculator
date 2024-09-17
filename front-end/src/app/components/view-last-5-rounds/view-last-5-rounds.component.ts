@@ -110,4 +110,8 @@ export class ViewLast5RoundsComponent {
   back() {
     this.router.navigate(['/score-entry']);
   }
+
+  selectAll($event: FocusEvent) {
+    ($event.target as HTMLInputElement).select();
+  }
 }

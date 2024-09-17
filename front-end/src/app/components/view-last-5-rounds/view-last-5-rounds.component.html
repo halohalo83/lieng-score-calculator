@@ -19,13 +19,15 @@
         <tbody>
           <tr *ngFor="let round of roundScores">
             <td *ngFor="let player of players; let i = index">
-              <nz-input-number
-                [nzSize]="'large'"
-                type="number"
-                inputmode="numeric"
-                [(ngModel)]="round[i]"
-                nzPlaceHolder="Bú"
-              ></nz-input-number>
+              <input
+              [min]="0"
+              nz-input
+              type="number"
+              inputmode="numeric"
+              [(ngModel)]="round[i]"
+              placeholder="Bú"
+              (focus)="selectAll($event)"
+            />
             </td>
           </tr>
         </tbody>

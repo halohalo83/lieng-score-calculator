@@ -32,7 +32,7 @@ import { NzInputModule } from 'ng-zorro-antd/input';
     FlipCardComponent,
     NzModalModule,
     NzSwitchModule,
-    NzInputModule
+    NzInputModule,
   ],
   templateUrl: './score-entry.component.html',
   styleUrl: './score-entry.component.scss',
@@ -116,15 +116,7 @@ export class ScoreEntryComponent {
 
   chooseWinner(player: PlayerScoreViewModel) {
     if (player.isWinner) {
-      this.modal.confirm({
-        nzTitle: `${player.name} ăn gà ?`,
-        nzOnOk: () => this.setWinner(player.id),
-        nzOkText: 'Đúng vậy',
-        nzOnCancel: () => {
-          this.setWinner(0);
-        },
-        nzCancelText: 'Đéo',
-      });
+      this.setWinner(player.id);
     } else {
       this.setWinner(0);
     }

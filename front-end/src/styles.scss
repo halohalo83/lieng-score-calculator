@@ -22,3 +22,7 @@
   flex: 1;
   margin: 10px;
 }
+
+input, textarea, select {
+  font-size: 16px; /* Ensures the font size is large enough to prevent zoom */
+}
